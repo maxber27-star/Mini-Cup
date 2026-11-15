@@ -244,10 +244,10 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
 
 .setbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:2px solid #fff;background:linear-gradient(135deg,#ff3d8b,#ff9a1f);color:#fff;font:700 14px var(--f-body);cursor:pointer;box-shadow:0 6px 18px -6px rgba(0,0,0,.6)}
 .setbtn:hover{filter:brightness(1.1)}
-#setTop{position:fixed;top:12px;left:12px;z-index:50}
+#setTop{position:fixed;top:12px;right:12px;z-index:50}
 #menu{padding-top:46px}
 main.app:has(#game:not([hidden])) ~ #setTop{display:none}
-#setIn{position:absolute;top:12px;left:12px;z-index:3;padding:6px 12px;background:rgba(10,15,36,.78);border-color:var(--line);backdrop-filter:blur(4px)}
+#setIn{position:absolute;top:12px;right:12px;z-index:3;padding:6px 12px;background:rgba(10,15,36,.78);border-color:var(--line);backdrop-filter:blur(4px)}
 .setov{position:fixed;inset:0;z-index:100;background:rgba(5,10,30,.8);display:grid;place-items:center;padding:12px}
 .setov[hidden]{display:none}
 .setbox{width:min(680px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:2px solid var(--line);border-top:8px solid #ff3d8b;border-image:linear-gradient(90deg,#ff3d8b,#ffe600,#2fe27a,#22c3ff,#a65bff) 1;border-radius:0;padding:18px 20px 20px}
