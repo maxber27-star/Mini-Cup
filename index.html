@@ -208,6 +208,13 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
 
 /* ---- online room screens ---- */
 .tbtn.o{background:linear-gradient(135deg,#ff9a1f,#ff2bd6)}
+.tbtn.r{background:linear-gradient(135deg,#ffe600,#ff4a1c);color:#14112e}
+.pickrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+.pickbtn{background:none;border:3px solid transparent;border-radius:16px;padding:6px;cursor:pointer;color:inherit;text-align:center}
+.pickbtn:hover{border-color:#ffe600}.pickbtn[aria-pressed="true"]{border-color:#fff;background:rgba(255,255,255,.14);box-shadow:0 0 0 3px var(--team)}
+.pickbtn .pnote{display:block;margin-top:6px;font-weight:700;font-size:13px;color:var(--mute)}
+.xpbar{height:12px;border-radius:6px;background:var(--line);overflow:hidden;margin:6px 0 4px}.xpbar i{display:block;height:100%;background:linear-gradient(90deg,#ffe600,#ff9a1f)}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:10px 0}.statgrid div{background:var(--panel2);border-radius:10px;padding:10px;text-align:center}.statgrid b{display:block;font:400 28px var(--f-display);color:#ffe600}.statgrid span{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 #olBack{background:linear-gradient(135deg,#ff9a1f,#ff2bd6);color:#fff;border-color:#fff}
 #online .modes{margin-bottom:18px}
 .olgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:760px}
@@ -237,6 +244,7 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
 .setbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:2px solid #fff;background:linear-gradient(135deg,#ff3d8b,#ff9a1f);color:#fff;font:700 14px var(--f-body);cursor:pointer;box-shadow:0 6px 18px -6px rgba(0,0,0,.6)}
 .setbtn:hover{filter:brightness(1.1)}
 #setTop{position:fixed;top:12px;left:12px;z-index:50}
+#menu{padding-top:46px}
 main.app:has(#game:not([hidden])) ~ #setTop{display:none}
 #setIn{position:absolute;top:12px;left:12px;z-index:3;padding:6px 12px;background:rgba(10,15,36,.78);border-color:var(--line);backdrop-filter:blur(4px)}
 .setov{position:fixed;inset:0;z-index:100;background:rgba(5,10,30,.8);display:grid;place-items:center;padding:12px}
@@ -269,6 +277,7 @@ main.app:has(#game:not([hidden])) ~ #setTop{display:none}
       <div class="tbtns">
         <button type="button" id="tQuick" class="tbtn q" disabled>Quick play<small>Pick a club, play a match</small></button>
         <button type="button" id="tOnline" class="tbtn o" disabled>Play online<small>Create or join a room with a code</small></button>
+        <button type="button" id="tRtg" class="tbtn r" disabled><span id="tRtgT">Road to Glory</span><small id="tRtgS">Pick one player, rise to the top</small></button>
         <button type="button" id="tFran" class="tbtn f" disabled><span id="tFranT">Franchise</span><small id="tFranS">Season, playoffs, squad</small></button>
       </div>
     </div>
@@ -319,6 +328,7 @@ main.app:has(#game:not([hidden])) ~ #setTop{display:none}
     </header>
     <div class="modes" role="group" aria-label="Game mode"><button type="button" id="btnBack" class="btn" aria-label="Back to title screen">← Back</button><button type="button" id="modeQm" aria-pressed="true" hidden>Quick match</button><button type="button" id="modeFr" aria-pressed="false" hidden>Franchise</button></div>
     <div id="fr" hidden><div id="frRoot"></div></div>
+    <div id="rg" hidden><div id="rgRoot"></div></div>
     <div class="cols" id="qm">
       <section aria-labelledby="h-team">
         <h2 id="h-team">Your team</h2>
@@ -685,6 +695,7 @@ function release(a){
 }
 /* manual player switch (also used by the online guest through the host) */
 function switchPlayer(){
+ if(G.rtgP)return;
  if(G.demo||G.paused||(G.state!=='play'&&G.state!=='countdown'))return;
  const b=G.ball,cur=G.ctrl;
  if(cur&&b.owner===cur)return;
@@ -729,7 +740,7 @@ function makePlayers(){
  });
 for(let t=0;t<2;t++){const sl=startersOf(G.teams[t].ti);G.players.filter(p=>p.team===t).forEach(p=>{const pl=sl[p.idx];p.pid=pl.id;p.name=pl.name;p.rt=pl.r;p.num=pl.num;p.label=shortName(pl.name);Object.assign(p,modsOf(pl.r))})}
  G.ball={x:PW/2,y:PH/2,z:0,vx:0,vy:0,vz:0,owner:null,last:null,passTarget:null,passT:0,passTeam:-1,land:null,spin:0,trail:[],kickId:1,gkDone:{},ghost:-1};
- G.ctrl=null;
+ G.ctrl=null;G.rtgP=RTGPID?G.players.find(p=>p.team===0&&p.pid===RTGPID)||null:null;G.rtgStat={g:0,a:0};
 }
 function placeKickoff(kickTeam){
  const b=G.ball;let kicker=null;
@@ -753,6 +764,7 @@ function startMatch(u,o,diff,len,demo){
  makePlayers();G.ovr=[teamRatings(u).ovr,teamRatings(o).ovr];clearInput();resetKickoff(0);
 }
 function setCtrl(p){
+ if(G.rtgP&&p&&p.team===G.rtgP.team)p=G.rtgP;
  if(G.ctrl&&G.ctrl!==p)G.ctrl.ctrl=false;
  G.ctrl=p;if(p)p.ctrl=true;
 }
@@ -766,6 +778,7 @@ function kickBall(p,ux,uy,speed,vz,target,passT,power){
  const b=G.ball,m=Math.hypot(ux,uy)||1;ux/=m;uy/=m;
  b.owner=null;b.x=p.x+ux*(PR+BR+2);b.y=p.y+uy*(PR+BR+2);b.z=0;
  b.vx=ux*speed;b.vy=uy*speed;b.vz=vz||0;
+ if(b.kl!==p){b.kl2=b.kl;b.kl2t=b.klt}b.kl=p;b.klt=G.t;
  b.last=p;b.passTarget=target||null;b.passT=target?(passT||1.4):0;b.passTeam=p.team;b.land=null;b.kickId++;b.ghost=-1;
  p.kickCD=.35;p.kickAnim=.18;if(G.rs&&p===G.rs.taker)G.rs.kicked=true;
  if(G.rs&&G.rs.type==='throw'&&p===G.rs.taker&&!G.rs.thrown){G.rs.thrown=true;p.throwAnim=.42;p.kickAnim=0;b.z=42;b.vz=30;b.vx*=.85;b.vy*=.85}p.face=Math.atan2(uy,ux);
@@ -861,7 +874,7 @@ function bestPass(p,fromGK){
   if(t.isGK)continue;
   const d=dist(p,t);if(d<70||d>560)continue;
   const progress=((t.x-p.x)*dir)/300,o=openness(t),clear=laneClear(p,t);
-  let s=progress+o*.9-d/1000+(t.role==='FWD'?.2:0)+rnd(0,.15),kind='ground';
+  let s=progress+o*.9-d/1000+(t.role==='FWD'?.2:0)+(t===G.rtgP?.4:0)+rnd(0,.15),kind='ground';
   if(!clear){if(d>190){kind='lob';s-=.15}else s-=.6}
   else if(progress>.5&&(t.role==='FWD'||t.role==='MID')&&Math.random()<.35)kind='through';
   if(!best||s>best.score)best={t,score:s,kind};
@@ -1144,6 +1157,7 @@ function updateAim(){
 /* ---------- human control ---------- */
 function updateCtrl(dt){
  if(G.demo)return;
+ if(G.rtgP){if(G.ctrl!==G.rtgP)setCtrl(G.rtgP);return}
  G.lock=Math.max(0,G.lock-dt);
  const b=G.ball,cur=G.ctrl;
  /* offence: always follow the ball carrier / pass receiver */
@@ -1550,6 +1564,7 @@ function beginRestart(type,team,sx,sy){
 }
 function goal(team){
  const lp=G.ball.last,own=!lp||lp.team!==team;
+ if(G.rtgP&&!own&&team===0){if(lp===G.rtgP)G.rtgStat.g++;else if(G.ball.kl===lp&&G.ball.kl2===G.rtgP&&G.t-G.ball.kl2t<7)G.rtgStat.a++}
  G.scorer=own?null:lp;G.ownGoal=own&&!!lp;G.events.push({team,pid:own?null:lp.pid,own:own&&!!lp});
  G.ball.ghost=-1;G.score[team]++;G.lastScorer=team;G.state='goal';G.timer=3;G.shake=14;
  G.ball.owner=null;G.ball.passT=0;
@@ -2278,9 +2293,9 @@ function applyAccent(){
  root.setProperty('--team',t.ui);root.setProperty('--team-ink',inkFor(t.ui));
 }
 
-let CFG=null;
+let CFG=null,RTGPID=null;
 function launchMatch(cfg){
- CFG=cfg;ROSTERS=cfg.rosters||DEFAULT_ROSTERS;
+ CFG=cfg;RTGPID=cfg.rtg||null;ROSTERS=cfg.rosters||DEFAULT_ROSTERS;
  $('#menu').hidden=true;$('#game').hidden=false;$('#endBar').hidden=true;$('#endNote').hidden=true;
  stage=$('.stage');cv=$('#cv');ctx=cv.getContext('2d');
  resize();
@@ -2288,7 +2303,7 @@ function launchMatch(cfg){
  G.needWinner=!!cfg.needWinner;G.title=cfg.title||'';
  const fr=!!cfg.fr;
  $('#btnRematch').hidden=fr;$('#btnChange').textContent=fr?'Continue':'Change teams';
- $('#btnQuit').textContent=fr?'Back to franchise':'Quit to menu';
+ $('#btnQuit').textContent=cfg.rtg?'Back to Road to Glory':fr?'Back to franchise':'Quit to menu';
  audio();sfx('intro');
  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
  $('#btnPause').textContent='Pause';$('#btnPause').hidden=false;$('#btnRematch').hidden=fr||!!cfg.online&&cfg.online!=='host';
@@ -2424,7 +2439,7 @@ function wireInput(){
  $('#btnStart').addEventListener('click',startQuick);
  $('#modeQm').addEventListener('click',()=>{MODE='qm';renderMode()});
  $('#modeFr').addEventListener('click',()=>{MODE='fr';renderMode()});
- wireFr();
+ wireFr();wireRg();
  $('#btnPause').addEventListener('click',()=>{togglePause();$('#btnPause').blur()});
  $('#btnMute').addEventListener('click',()=>{toggleMute();$('#btnMute').blur()});
  $('#setIn').addEventListener('click',()=>openSettings());$('#setTop').addEventListener('click',()=>openSettings());
@@ -2448,7 +2463,7 @@ function frame(ts){
  draw();
 }
 function init(){
- applyAccent();renderHints();syncSoundBtn();setupSettings();wireInput();wireTitle();wireOnline();loadSave().then(()=>{renderMode();updateTitle()});renderMode();
+ applyAccent();renderHints();syncSoundBtn();setupSettings();wireInput();wireTitle();wireOnline();loadSave().then(loadRG).then(()=>{renderMode();updateTitle()});renderMode();
  requestAnimationFrame(frame);
 }
 
@@ -2488,10 +2503,10 @@ function renderQuick(){
 function startQuick(){launchMatch({user:sel.user,opp:sel.opp,diff:sel.diff,len:sel.len,rosters:DEFAULT_ROSTERS,fr:false})}
 function renderMode(){
  $('#modeQm').setAttribute('aria-pressed',String(MODE==='qm'));$('#modeFr').setAttribute('aria-pressed',String(MODE==='fr'));
- $('#qm').hidden=MODE!=='qm';$('#fr').hidden=MODE!=='fr';
- $('#menuEyebrow').textContent='16 clubs · 6 v 6 · '+(MODE==='qm'?'quick match':'franchise');
+ $('#qm').hidden=MODE!=='qm';$('#fr').hidden=MODE!=='fr';$('#rg').hidden=MODE!=='rg';
+ $('#menuEyebrow').textContent='16 clubs · 6 v 6 · '+(MODE==='qm'?'quick match':MODE==='rg'?'road to glory':'franchise');
  $('#menuLede').hidden=MODE!=='qm';
- if(MODE==='qm'){accent(sel.user);renderQuick()}else{accent(FR?FR.user:FSET.user);renderFr()}
+ if(MODE==='qm'){accent(sel.user);renderQuick()}else if(MODE==='rg'){accent(RG?RG.user:RS.user);renderRg()}else{accent(FR?FR.user:FSET.user);renderFr()}
 }
 
 /* save: private db doc + localStorage fallback */
@@ -2552,12 +2567,12 @@ function homeHtml(F){
   const oi=um.a===F.user?um.b:um.a,o=TEAMS[oi],q=teamRatings(oi,F.rosters),m=teamRatings(F.user,F.rosters);
   h+='<div class="card"><h3>'+matchTitle(F)+(F.phase==='po'?' · knockout, no draws':'')+'</h3><div class="vs"><div class="t">'+kdot(TEAMS[F.user])+esc(TEAMS[F.user].short)+'</div><span>vs</span><div class="t">'+kdot(o)+esc(o.name)+'</div></div>'+
    '<div class="stats" style="max-width:420px;margin:0 0 14px"><span>You OVR</span><i style="--v:'+rbar(m.ovr)+';--tc:'+TEAMS[F.user].ui+'"></i><span>'+esc(o.short)+' OVR</span><i style="--v:'+rbar(q.ovr)+';--tc:'+o.ui+'"></i></div>'+
-   '<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="go" style="width:auto" data-a="play">Play match</button><button type="button" class="btn" data-a="sim">Simulate it</button></div></div>';
+   '<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="go" style="width:auto" data-a="play">'+(F.rtg?'Play as '+esc(rgPlayer(F).name.split(' ').slice(-1)[0]):'Play match')+'</button><button type="button" class="btn" data-a="sim">Simulate it</button></div></div>';
  }else{
   h+='<div class="card"><h3>Playoffs</h3><p style="margin:0 0 12px">'+(F.userQualified?'You are out of the playoffs.':'Your club missed the top '+PO_SIZE+'.')+' The rest of the bracket can be simulated.</p><button type="button" class="go" style="max-width:340px" data-a="simrest">Simulate the playoffs</button></div>';
  }
  if(F.hist.length)h+='<div class="card"><h3>History</h3>'+F.hist.map(x=>'<div>Season '+x.season+': '+esc(TEAMS[x.champ].name)+(x.champ===x.user?' 🏆':'')+'</div>').join('')+'</div>';
- h+='<p class="note">Your best-rated player at each position starts. Manage the squad to raise your OVR.</p>';
+ h+=F.rtg?'<p class="note">You control only '+esc(rgPlayer(F).name)+' — no switching. Your teammates are AI. Score, assist and win to earn XP and raise your rating.</p>':'<p class="note">Your best-rated player at each position starts. Manage the squad to raise your OVR.</p>';
  return h;
 }
 const POSORD={GK:0,DEF:1,MID:2,FWD:3};
@@ -2681,9 +2696,116 @@ function wireFr(){
  });
 }
 
+
+/* ---------- Road to Glory: one player, a season, playoffs ---------- */
+let RG=null,RS={step:1,user:0,diff:'normal',len:120,pid:null},rgTab='home',RGMSG='',RGCONF=false;
+const RGK='minicup.rtg.v1';
+function rgPlayer(F){return F.rosters[F.user].find(p=>p.id===F.rtg.pid)||{name:'Player',pos:'MID',r:3,num:0,id:''}}
+function rgSave(){
+ try{
+  if(!RG){try{localStorage.removeItem(RGK)}catch(e){}if(DBC)DBC.doc('rtg').set({json:'',savedAt:Date.now()}).catch(()=>{});return}
+  RG.savedAt=Date.now();const json=JSON.stringify(RG);
+  try{localStorage.setItem(RGK,json)}catch(e){}
+  if(DBC)DBC.doc('rtg').set({json,savedAt:RG.savedAt}).catch(()=>{});
+ }catch(e){}
+}
+async function loadRG(){
+ let data=null;
+ try{const raw=localStorage.getItem(RGK);if(raw)data=JSON.parse(raw)}catch(e){}
+ try{if(DBC){const snap=await DBC.doc('rtg').get();if(snap.exists){const d=snap.data();if(d&&d.json){const x=JSON.parse(d.json);if(!data||(x.savedAt||0)>=(data.savedAt||0))data=x}}}}catch(e){}
+ if(data&&data.rosters&&data.sched&&data.rtg&&!RG&&G.state==='menu')RG=data;
+}
+const XP_STEP=120;
+function rgStarters(ti){return startersFrom(DEFAULT_ROSTERS[ti]).filter(p=>p.pos!=='GK'&&p.id&&p.id[0]!=='x')}
+function rgAward(F,st,w){
+ const R=F.rtg;let xp=10+st.g*25+st.a*15+(w===0?15:w===-1?5:0);
+ R.apps++;R.goals+=st.g;R.assists+=st.a;R.sg+=st.g;R.sa+=st.a;R.xp+=xp;
+ const p=rgPlayer(F);let up=0;
+ while(R.xp>=XP_STEP&&p.r<5){R.xp-=XP_STEP;p.r=snap5(p.r+.5);up++}
+ if(p.r>=5)R.xp=Math.min(R.xp,XP_STEP-1);
+ return{xp,up,r:p.r};
+}
+function rgFinish(gu,go,w,extra,st){
+ const F=RG,o=nextOpponent(F),res=recordUserResult(F,gu,go,w,extra);
+ if(F.phase==='po'&&!userInPlayoffs(F))simRest(F);
+ const aw=rgAward(F,st,w);rgSave();
+ if(!res)return'';
+ return res.label+' vs '+TEAMS[o].short+': '+(w===0?'win':w===1?'loss':'draw')+' '+gu+'-'+go+(extra.pen?' (penalties)':extra.ot?' (extra time)':'')+' · '+st.g+' goal'+(st.g===1?'':'s')+', '+st.a+' assist'+(st.a===1?'':'s')+' · +'+aw.xp+' XP'+(aw.up?' · ⬆ rating up to '+aw.r.toFixed(1):'')+(res.champ?' · 🏆 CHAMPIONS!':res.eliminated?' · knocked out':'');
+}
+function rgSimStats(F,gu){
+ const pl=rgPlayer(F),wg={GK:0,DEF:.06,MID:.22,FWD:.55}[pl.pos]*(.6+pl.r/5*.8),wa={GK:0,DEF:.08,MID:.3,FWD:.2}[pl.pos]*(.6+pl.r/5*.8);
+ let g=0,a=0;for(let i=0;i<gu;i++){const x=Math.random();if(x<wg)g++;else if(Math.random()<wa)a++}
+ return{g,a};
+}
+function renderRg(){const root=$('#rgRoot');root.innerHTML=RG&&RG.rosters?rgHub():rgSetup()}
+function rgSetup(){
+ if(RS.step===1)return'<div class="cols"><section><h2>1 · Choose your club</h2><div class="grid">'+TEAMS.map((t,i)=>teamCard(i,i===RS.user,'data-a="rpick" data-v="'+i+'"',DEFAULT_ROSTERS)).join('')+'</div></section>'+
+  '<aside class="side"><div class="card"><h3>Road to Glory</h3><p style="margin:0">Pick a club, then pick <b>one player</b>. You only ever control that player — there is no switching and no squad management. Your teammates are AI. Play a 7-match season, then the top 8 reach the playoffs. Goals, assists and wins earn XP that raises your rating.</p></div>'+
+  '<div><h2>Difficulty</h2>'+segHtml('rdiff',RS.diff,DIFFS)+'</div><div><h2>Match length</h2>'+segHtml('rlen',RS.len,LENS)+'</div>'+
+  '<button type="button" class="go" data-a="rnext">Choose your player →</button></aside></div>';
+ const t=TEAMS[RS.user],list=rgStarters(RS.user);
+ if(!list.find(p=>p.id===RS.pid))RS.pid=null;
+ return'<div class="card"><h3>2 · Choose your player at '+esc(t.name)+'</h3><p style="margin:0 0 14px">You will play every minute as this player. Pick the role you want: defender, midfielder or forward.</p><div class="pickrow">'+
+  list.map(p=>'<button type="button" class="pickbtn" data-a="rplayer" data-v="'+p.id+'" aria-pressed="'+(RS.pid===p.id)+'">'+cardHtml(p,t,{goals:{}})+'<span class="pnote">'+({DEF:'Defender',MID:'Midfielder',FWD:'Forward'}[p.pos])+'</span></button>').join('')+'</div></div>'+
+  '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px"><button type="button" class="btn" data-a="rback">← Change club</button><button type="button" class="go" style="width:auto" data-a="rstart"'+(RS.pid?'':' disabled')+'>Start Road to Glory</button></div>';
+}
+function rgHub(){
+ const F=RG,t=TEAMS[F.user],p=rgPlayer(F),tb=table(F),pos=tb.findIndex(r=>r.t===F.user)+1;
+ const ph=F.phase==='season'?'Matchday '+Math.min(F.md+1,SEASON_MD)+' of '+SEASON_MD:F.phase==='po'?'Playoffs · '+PO_NAMES[F.po.round]:'Season complete';
+ const head='<div class="hubhead">'+kdot(t).replace('16px','30px').replace('16px','30px')+'<div><div class="nm">'+esc(p.name)+' · '+p.pos+' '+p.r.toFixed(1)+' /5</div><div class="sub">'+esc(t.name)+' · Season '+F.season+' · '+ph+' · League '+pos+(pos===1?'st':pos===2?'nd':pos===3?'rd':'th')+'</div></div></div>';
+ const tabs=[['home','Home'],['player','My player'],['table','Table'],['sched','Schedule'],['po','Playoffs']];
+ const tb2='<div class="tabs" role="tablist">'+tabs.map(x=>'<button type="button" data-a="rtab" data-v="'+x[0]+'" aria-pressed="'+(rgTab===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
+ const msg=RGMSG?'<div class="msg" role="status">'+esc(RGMSG)+'</div>':'';
+ const body={home:homeHtml,player:rgPlayerHtml,table:tableHtml,sched:schedHtml,po:poHtml}[rgTab](F);
+ const foot='<p class="note" style="margin-top:22px"><button type="button" class="sbtn'+(RGCONF?' warn':'')+'" data-a="rreset">'+(RGCONF?'Click again to erase this career':'New Road to Glory')+'</button></p>';
+ return head+tb2+msg+body+foot;
+}
+function rgPlayerHtml(F){
+ const p=rgPlayer(F),t=TEAMS[F.user],R=F.rtg;
+ return'<div class="two"><div class="card"><h3>Your player</h3><div style="max-width:210px;margin:0 auto">'+cardHtml(p,t,{goals:{}})+'</div></div>'+
+ '<div class="card"><h3>Career</h3><div class="statgrid"><div><b>'+R.apps+'</b><span>Matches</span></div><div><b>'+R.goals+'</b><span>Goals</span></div><div><b>'+R.assists+'</b><span>Assists</span></div><div><b>'+R.sg+'</b><span>Goals this season</span></div></div>'+
+ '<p style="margin:10px 0 0">Rating <b>'+p.r.toFixed(1)+' / 5</b>'+(p.r>=5?' · maxed out':'')+'</p><div class="xpbar"><i style="width:'+(p.r>=5?100:Math.round(R.xp/XP_STEP*100))+'%"></i></div><p class="note" style="margin:0">'+(p.r>=5?'You are a legend.':R.xp+' / '+XP_STEP+' XP to the next +0.5 rating')+'. Win +15, goal +25, assist +15, appearance +10.</p></div></div>';
+}
+function rgAction(el){
+ const a=el.dataset.a,v=el.dataset.v;
+ if(a==='rpick'){RS.user=+v;accent(RS.user);return renderRg()}
+ if(a==='rdiff'){RS.diff=v;return renderRg()}
+ if(a==='rlen'){RS.len=+v;return renderRg()}
+ if(a==='rnext'){RS.step=2;RS.pid=null;return renderRg()}
+ if(a==='rback'){RS.step=1;return renderRg()}
+ if(a==='rplayer'){RS.pid=v;return renderRg()}
+ if(a==='rstart'){
+  if(!RS.pid)return;
+  RG=newFranchise(RS.user,RS.diff,RS.len);RG.rtg={pid:RS.pid,apps:0,goals:0,assists:0,sg:0,sa:0,xp:0};
+  rgTab='home';RGMSG='';RGCONF=false;rgSave();return renderMode();
+ }
+ const F=RG;if(!F)return;
+ if(a!=='rreset')RGCONF=false;
+ if(a==='rtab'){rgTab=v;RGMSG='';return renderRg()}
+ if(a==='rreset'){if(RGCONF){RG=null;RGCONF=false;RGMSG='';RS.step=1;RS.pid=null;rgSave();return renderMode()}RGCONF=true;return renderRg()}
+ if(a==='play'){
+  const m=userMatch(F);if(!m)return;const oi=m.a===F.user?m.b:m.a,po=F.phase==='po';
+  RGMSG='';
+  return launchMatch({user:F.user,opp:oi,diff:F.diff,len:F.len,rosters:F.rosters,needWinner:po,title:matchTitle(F),fr:true,rtg:F.rtg.pid,
+   onEnd:r=>rgFinish(r.gu,r.go,r.winner,{ot:r.ot,pen:r.pens,events:r.events},Object.assign({},G.rtgStat||{g:0,a:0}))});
+ }
+ if(a==='sim'){
+  const m=userMatch(F),po=F.phase==='po',oi=m.a===F.user?m.b:m.a,r=simResult(F,F.user,oi,simRng(F),po);
+  const w=po?(r.w===F.user?0:1):(r.ga>r.gb?0:r.ga<r.gb?1:-1);
+  RGMSG=rgFinish(r.ga,r.gb,w,{ot:r.ot,pen:r.pen,events:[]},rgSimStats(F,r.ga));return renderRg();
+ }
+ if(a==='simrest'){simRest(F);rgSave();RGMSG='Playoffs simulated.';return renderRg()}
+ if(a==='next'){nextSeason(F);F.rtg.sg=0;F.rtg.sa=0;rgSave();RGMSG='Season '+F.season+' begins.';rgTab='home';return renderRg()}
+}
+function wireRg(){
+ const root=$('#rgRoot');
+ root.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&!el.disabled)rgAction(el)});
+}
+
 /* ---------- title screen ---------- */
 function updateTitle(){
  const a=$('#tFranT'),b=$('#tFranS');if(!a)return;
+ const rr=$('#tRtgT'),rs=$('#tRtgS');if(rr){rr.textContent=RG?'Continue Road to Glory':'Road to Glory';rs.textContent=RG?(rgPlayer(RG).name+' · '+TEAMS[RG.user].short+' · season '+RG.season):'Pick one player, rise to the top'}
  a.textContent=FR?'Continue franchise':'Franchise';b.textContent=FR?(TEAMS[FR.user].short+' · season '+FR.season):'Season, playoffs, squad';
 }
 function wireTitle(){
@@ -2695,8 +2817,9 @@ function wireTitle(){
  const go=m=>{MODE=m;T.hidden=true;$('#menu').hidden=false;audio();sfx('intro');renderMode();window.scrollTo(0,0)};
  $('#tQuick').addEventListener('click',()=>go('qm'));
  $('#tFran').addEventListener('click',()=>go('fr'));
- $('#btnBack').addEventListener('click',()=>{updateTitle();$('#menu').hidden=true;T.hidden=false;$('#tQuick').disabled=false;$('#tFran').disabled=false;if($('#tOnline'))$('#tOnline').disabled=false;window.scrollTo(0,0)});
- setTimeout(()=>{$('#tQuick').disabled=false;$('#tFran').disabled=false;if($('#tOnline'))$('#tOnline').disabled=false;$('#tQuick').focus()},1500);
+ $('#tRtg').addEventListener('click',()=>go('rg'));
+ $('#btnBack').addEventListener('click',()=>{updateTitle();$('#menu').hidden=true;T.hidden=false;$('#tQuick').disabled=false;$('#tFran').disabled=false;$('#tRtg').disabled=false;if($('#tOnline'))$('#tOnline').disabled=false;window.scrollTo(0,0)});
+ setTimeout(()=>{$('#tQuick').disabled=false;$('#tFran').disabled=false;$('#tRtg').disabled=false;if($('#tOnline'))$('#tOnline').disabled=false;$('#tQuick').focus()},1500);
 }
 
 /* ---------- online play: rooms, host/guest sync ---------- */
@@ -2845,7 +2968,7 @@ async function olLeaveRoom(){
 async function olBackToTitle(){
  await olLeaveRoom();
  $('#online').hidden=true;$('#title').hidden=false;
- $('#tQuick').disabled=false;$('#tFran').disabled=false;
+ $('#tQuick').disabled=false;$('#tFran').disabled=false;$('#tRtg').disabled=false;
  if($('#tOnline'))$('#tOnline').disabled=false;
  window.scrollTo(0,0);
 }
