@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Mini Cup</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
@@ -232,6 +233,28 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
 .olrow2{display:flex;gap:10px;flex-wrap:wrap}.olrow2 .go{flex:1 1 120px}
 .go.alt2{background:linear-gradient(135deg,#ffe600,#ff9a1f);color:#06122a}
 .olta{display:block;width:100%;margin:8px 0 12px;padding:10px 12px;border-radius:10px;border:2px solid #fff;background:rgba(6,9,26,.75);color:#fff;font:12px/1.35 ui-monospace,Consolas,monospace;word-break:break-all;resize:vertical}
+
+.setbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:2px solid #fff;background:linear-gradient(135deg,#ff3d8b,#ff9a1f);color:#fff;font:700 14px var(--f-body);cursor:pointer;box-shadow:0 6px 18px -6px rgba(0,0,0,.6)}
+.setbtn:hover{filter:brightness(1.1)}
+#setTop{position:fixed;top:12px;left:12px;z-index:50}
+main.app:has(#game:not([hidden])) ~ #setTop{display:none}
+#setIn{position:absolute;top:12px;left:12px;z-index:3;padding:6px 12px;background:rgba(10,15,36,.78);border-color:var(--line);backdrop-filter:blur(4px)}
+.setov{position:fixed;inset:0;z-index:100;background:rgba(5,10,30,.8);display:grid;place-items:center;padding:12px}
+.setov[hidden]{display:none}
+.setbox{width:min(680px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:2px solid var(--line);border-top:8px solid #ff3d8b;border-image:linear-gradient(90deg,#ff3d8b,#ffe600,#2fe27a,#22c3ff,#a65bff) 1;border-radius:0;padding:18px 20px 20px}
+.setbox h2{font:400 28px var(--f-display);margin:0 0 4px;color:#ffe600}
+.setbox h3{font:700 13px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:#22c3ff;margin:18px 0 8px}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.setrow>span{font-weight:600}.setrow small{display:block;color:var(--mute);font-weight:400;font-size:13px}
+.setrow .ctl{display:flex;gap:8px;align-items:center}
+.keyb{min-width:92px;padding:6px 10px;border-radius:8px;border:2px solid var(--line);border-bottom-width:4px;background:var(--panel2);color:var(--ink);font:700 14px var(--f-body);cursor:pointer}
+.keyb.listen{border-color:#ffe600;color:#ffe600;animation:blk .8s infinite}
+@keyframes blk{50%{background:#3a3200}}
+.tg{min-width:68px;padding:6px 12px;border-radius:999px;border:2px solid var(--line);background:var(--panel2);color:var(--mute);font:700 14px var(--f-body);cursor:pointer}
+.tg[aria-pressed="true"]{background:#2fe27a;border-color:#2fe27a;color:#04210f}
+.setbox input[type=range]{width:150px;accent-color:#ff3d8b}
+.setfoot{display:flex;gap:10px;justify-content:space-between;margin-top:18px;flex-wrap:wrap}
+.setmsg{color:var(--mute);font-size:13px;margin:6px 0 0;min-height:18px}
 @media (pointer:coarse){.touch{display:flex}.keys-wrap{display:none}}
 @media (max-width:820px){.cols{grid-template-columns:minmax(0,1fr)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -251,30 +274,90 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
     </div>
     <div class="right">
       <svg class="bust" viewBox="-24 0 368 380" role="img" aria-label="A player celebrating with arms raised and a joyful shout">
-        <path d="M40 380V300Q48 246 112 228H208Q272 246 280 300V380Z" fill="var(--c)"/>
-        <path d="M118 232h16l-4 148h-18zM186 232h16l6 148h-18z" fill="var(--c2)" opacity=".85"/>
-        <path d="M60 268L24 168" stroke="#e0a67a" stroke-width="36" stroke-linecap="round"/><path d="M60 268L48 232" stroke="var(--c)" stroke-width="44" stroke-linecap="round"/><circle cx="20" cy="158" r="24" fill="#e0a67a"/><path d="M8 150q12-8 24 0M8 162q12 8 24 0" stroke="#b97a52" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M260 268L296 168" stroke="#e0a67a" stroke-width="36" stroke-linecap="round"/><path d="M260 268L272 232" stroke="var(--c)" stroke-width="44" stroke-linecap="round"/><circle cx="300" cy="158" r="24" fill="#e0a67a"/><path d="M288 150q12-8 24 0M288 162q12 8 24 0" stroke="#b97a52" stroke-width="3" fill="none" stroke-linecap="round"/>
-        <path d="M122 226L160 268 198 226Z" fill="var(--c2)"/>
-        <text x="160" y="344" text-anchor="middle" font-family="Bungee,Impact,sans-serif" font-size="58" fill="#fff" stroke="#0a0f24" stroke-width="2">10</text>
-        <g transform="rotate(-3 160 150)">
-          <rect x="136" y="196" width="48" height="48" rx="14" fill="#c98f64"/>
-          <circle cx="106" cy="140" r="12" fill="#d49868"/><circle cx="214" cy="140" r="12" fill="#d49868"/>
-          <ellipse cx="160" cy="136" rx="55" ry="64" fill="#e0a67a"/>
-          <path d="M104 126Q104 64 160 60Q216 64 216 126Q198 92 160 92Q122 92 104 126Z" fill="#2b1b12"/>
-          <path d="M121 109Q136 99 151 106M169 106Q184 99 199 109" stroke="#2b1b12" stroke-width="6" stroke-linecap="round" fill="none"/>
-          <ellipse cx="136" cy="128" rx="10" ry="8" fill="#fff"/><ellipse cx="184" cy="128" rx="10" ry="8" fill="#fff"/>
-          <circle cx="137" cy="129" r="5.2" fill="#3a2418"/><circle cx="183" cy="129" r="5.2" fill="#3a2418"/>
-          <circle cx="139" cy="127" r="1.8" fill="#fff"/><circle cx="185" cy="127" r="1.8" fill="#fff"/>
-          <path d="M125 124Q136 118 147 124M173 124Q184 118 195 124" stroke="#9a6a46" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-          <circle cx="122" cy="152" r="10" fill="#ff7a8a" opacity=".28"/><circle cx="198" cy="152" r="10" fill="#ff7a8a" opacity=".28"/>
-          <path d="M160 130q-6 15 0 21q6 1 8-4" stroke="#b97a52" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-          <path d="M138 166Q160 170 182 166Q179 192 160 193Q141 192 138 166Z" fill="#5a1220"/>
-          <path d="M141 167Q160 171 179 167L178 175Q160 179 142 175Z" fill="#fff"/>
-          <ellipse cx="160" cy="186" rx="10" ry="4.6" fill="#e85a6a"/>
-          <path d="M134 164Q136 170 140 173M186 164Q184 170 180 173" stroke="#b97a52" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        </g>
-      </svg>
+<defs>
+<radialGradient id="bkSkin" cx=".38" cy=".3" r=".85"><stop offset="0" stop-color="#f2bf94"/><stop offset=".6" stop-color="#e0a67a"/><stop offset="1" stop-color="#c58760"/></radialGradient>
+<linearGradient id="bkArm" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f0b78c"/><stop offset=".55" stop-color="#e0a67a"/><stop offset="1" stop-color="#bf8059"/></linearGradient>
+<linearGradient id="bkJ" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".32"/></linearGradient>
+<linearGradient id="bkHair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2f20"/><stop offset="1" stop-color="#21130c"/></linearGradient>
+<radialGradient id="bkIris" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#8a5a34"/><stop offset=".6" stop-color="#4a2c18"/><stop offset="1" stop-color="#25140a"/></radialGradient>
+<linearGradient id="bkNeck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a86f48"/><stop offset=".5" stop-color="#c98f64"/><stop offset="1" stop-color="#d79d72"/></linearGradient>
+</defs>
+<!-- torso -->
+<path d="M40 380V300Q48 246 112 228H208Q272 246 280 300V380Z" fill="var(--c)"/>
+<path d="M118 232h16l-4 148h-18zM186 232h16l6 148h-18z" fill="var(--c2)" opacity=".85"/>
+<path d="M40 380V300Q48 246 112 228H208Q272 246 280 300V380Z" fill="url(#bkJ)"/>
+<path d="M92 252Q84 300 90 380M228 252Q236 300 230 380M150 300Q146 340 150 380M172 292Q178 336 172 380" stroke="#000" stroke-opacity=".13" stroke-width="3" fill="none" stroke-linecap="round"/>
+<path d="M96 246Q76 262 72 300" stroke="#fff" stroke-opacity=".22" stroke-width="3" fill="none" stroke-linecap="round"/>
+<!-- arms -->
+<path d="M60 268L24 168" stroke="url(#bkArm)" stroke-width="36" stroke-linecap="round"/>
+<path d="M60 268L48 232" stroke="var(--c)" stroke-width="44" stroke-linecap="round"/><path d="M60 268L48 232" stroke="url(#bkJ)" stroke-width="44" stroke-linecap="round"/>
+<path d="M66 246L44 252" stroke="var(--c2)" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+<path d="M50 216l22-6" stroke="#ffd400" stroke-width="12" stroke-linecap="round" transform="rotate(-8 56 214)" opacity="0"/>
+<path d="M44 205L66 212" stroke="#ffd400" stroke-width="9" stroke-linecap="round"/><path d="M44 205L66 212" stroke="#000" stroke-opacity=".25" stroke-width="2" stroke-linecap="round" transform="translate(0 4)"/>
+<path d="M30 200Q26 190 30 182" stroke="#c18457" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+<circle cx="20" cy="158" r="24" fill="url(#bkSkin)"/><path d="M8 150q12 -8 24 0M8 162q12 -8 24 0M10 173q10 -7 20 0" stroke="#a8683f" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M0 164q-6 10 -1 18" stroke="#c18457" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="14" cy="144" rx="9" ry="4" fill="#fff" opacity=".22"/>
+<path d="M260 268L296 168" stroke="url(#bkArm)" stroke-width="36" stroke-linecap="round"/>
+<path d="M260 268L272 232" stroke="var(--c)" stroke-width="44" stroke-linecap="round"/><path d="M260 268L272 232" stroke="url(#bkJ)" stroke-width="44" stroke-linecap="round"/>
+<path d="M254 246L276 252" stroke="var(--c2)" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+<path d="M290 200Q294 190 290 182" stroke="#a8683f" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6"/>
+<circle cx="300" cy="158" r="24" fill="url(#bkSkin)"/><path d="M312 150q-12 -8 -24 0M312 162q-12 -8 -24 0M310 173q-10 -7 -20 0" stroke="#a8683f" stroke-width="2.4" stroke-linecap="round" fill="none"/><path d="M320 164q6 10 1 18" stroke="#c18457" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="306" cy="144" rx="9" ry="4" fill="#fff" opacity=".22"/>
+<!-- collar, badge, number -->
+<path d="M122 226L160 268 198 226Z" fill="var(--c2)"/>
+<path d="M126 230L160 262 194 230" stroke="#000" stroke-opacity=".25" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<path d="M118 224Q160 246 202 224" stroke="#fff" stroke-opacity=".35" stroke-width="2.5" fill="none"/>
+<g transform="translate(222 268)"><path d="M0-15L13-9V4Q13 14 0 19Q-13 14-13 4V-9Z" fill="#fff"/><path d="M0-11L9-7V3Q9 10 0 14Q-9 10-9 3V-7Z" fill="var(--c2)"/><path d="M0-6l2 4.6 5 .4-3.8 3.2 1.2 4.8L0 3.6-4.4 7l1.2-4.8L-7-1l5-.4Z" fill="#ffe600"/></g>
+<text x="160" y="298" text-anchor="middle" font-family="Bungee,Impact,sans-serif" font-size="11" letter-spacing="3" fill="#fff" opacity=".85">MINI CUP</text>
+<text x="160" y="352" text-anchor="middle" font-family="Bungee,Impact,sans-serif" font-size="58" fill="#fff" stroke="#0a0f24" stroke-width="2">10</text>
+<!-- head -->
+<g transform="rotate(-3 160 150)">
+<rect x="136" y="196" width="48" height="48" rx="14" fill="url(#bkNeck)"/>
+<path d="M140 232Q160 244 180 232" stroke="#9a6340" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".6"/>
+<path d="M138 214Q160 224 182 214" stroke="#000" stroke-opacity=".12" stroke-width="10" fill="none" stroke-linecap="round"/>
+<circle cx="106" cy="140" r="12" fill="#d49868"/><circle cx="214" cy="140" r="12" fill="#d49868"/>
+<path d="M104 136q-5 4-1 10M216 136q5 4 1 10" stroke="#a8683f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<circle cx="107" cy="141" r="5" fill="#b9784c" opacity=".55"/><circle cx="213" cy="141" r="5" fill="#b9784c" opacity=".55"/>
+<ellipse cx="160" cy="136" rx="55" ry="64" fill="url(#bkSkin)"/>
+<path d="M112 160Q118 196 160 200Q202 196 208 160Q196 188 160 190Q124 188 112 160Z" fill="#000" opacity=".1"/>
+<!-- hair -->
+<path d="M104 126Q104 64 160 60Q216 64 216 126Q198 92 160 92Q122 92 104 126Z" fill="url(#bkHair)"/>
+<path d="M104 126Q100 110 104 98Q108 118 114 124ZM216 126Q220 110 216 98Q212 118 206 124Z" fill="#21130c"/>
+<path d="M118 84Q140 70 168 72M132 76Q150 66 176 70M150 72Q176 64 200 80M170 76Q190 72 206 90" stroke="#7a5238" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".7"/>
+<path d="M126 96Q146 84 172 88" stroke="#fff" stroke-opacity=".18" stroke-width="5" fill="none" stroke-linecap="round"/>
+<path d="M112 112Q130 94 160 94Q190 94 208 112" stroke="#21130c" stroke-width="2" fill="none" opacity=".55"/>
+<!-- brows & eyes -->
+<path d="M120 110Q136 98 152 106M168 106Q184 98 200 110" stroke="#2b1b12" stroke-width="7" stroke-linecap="round" fill="none"/>
+<path d="M124 108Q136 101 148 106M172 106Q184 101 196 108" stroke="#5b3b26" stroke-width="2" stroke-linecap="round" fill="none" opacity=".7"/>
+<ellipse cx="136" cy="128" rx="11" ry="8.6" fill="#fff"/><ellipse cx="184" cy="128" rx="11" ry="8.6" fill="#fff"/>
+<path d="M125 128Q136 121 147 128M173 128Q184 121 195 128" fill="#000" opacity=".06"/>
+<circle cx="137" cy="129" r="6.2" fill="url(#bkIris)"/><circle cx="183" cy="129" r="6.2" fill="url(#bkIris)"/>
+<circle cx="137" cy="129" r="2.8" fill="#0d0705"/><circle cx="183" cy="129" r="2.8" fill="#0d0705"/>
+<circle cx="139.4" cy="126.6" r="2" fill="#fff"/><circle cx="185.4" cy="126.6" r="2" fill="#fff"/><circle cx="134.6" cy="131.4" r="1" fill="#fff" opacity=".8"/><circle cx="180.6" cy="131.4" r="1" fill="#fff" opacity=".8"/>
+<path d="M124 125Q136 116 148 124M172 124Q184 116 196 125" stroke="#3a2418" stroke-width="3" stroke-linecap="round" fill="none"/>
+<path d="M124 125l-4-3M127 122l-3-4M193 122l3-4M196 125l4-3" stroke="#3a2418" stroke-width="1.8" stroke-linecap="round"/>
+<path d="M127 135Q136 140 145 135M175 135Q184 140 193 135" stroke="#b9784c" stroke-width="2" stroke-linecap="round" fill="none" opacity=".7"/>
+<!-- cheeks, nose, freckles -->
+<circle cx="122" cy="152" r="11" fill="#ff7a8a" opacity=".3"/><circle cx="198" cy="152" r="11" fill="#ff7a8a" opacity=".3"/>
+<g fill="#a8683f" opacity=".5"><circle cx="126" cy="146" r="1.2"/><circle cx="132" cy="150" r="1.1"/><circle cx="121" cy="150" r="1"/><circle cx="194" cy="146" r="1.2"/><circle cx="188" cy="150" r="1.1"/><circle cx="199" cy="150" r="1"/></g>
+<path d="M160 128q-6 16 0 22q7 2 9-4" stroke="#b97a52" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+<path d="M153 152q7 5 14 0" stroke="#9a6340" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+<circle cx="155" cy="151" r="1.6" fill="#7a4a2e" opacity=".7"/><circle cx="165" cy="151" r="1.6" fill="#7a4a2e" opacity=".7"/>
+<ellipse cx="162" cy="140" rx="2.6" ry="6" fill="#fff" opacity=".24"/>
+<!-- mouth -->
+<path d="M138 166Q160 170 182 166Q179 192 160 193Q141 192 138 166Z" fill="#5a1220"/>
+<path d="M141 167Q160 171 179 167L178 175Q160 179 142 175Z" fill="#fff"/>
+<path d="M160 170v7" stroke="#d9d4cc" stroke-width="1.2"/>
+<ellipse cx="160" cy="186" rx="10" ry="4.6" fill="#e85a6a"/>
+<path d="M138 166Q160 170 182 166" stroke="#a5303f" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+<path d="M134 164Q136 170 140 173M186 164Q184 170 180 173" stroke="#b97a52" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+<path d="M142 196Q160 203 178 196" stroke="#b97a52" stroke-width="2" fill="none" opacity=".5" stroke-linecap="round"/>
+<!-- stubble + sweat sheen -->
+<g fill="#4a2f20" opacity=".22"><circle cx="134" cy="184" r="1"/><circle cx="140" cy="190" r="1"/><circle cx="148" cy="196" r="1"/><circle cx="172" cy="196" r="1"/><circle cx="180" cy="190" r="1"/><circle cx="186" cy="184" r="1"/><circle cx="127" cy="176" r="1"/><circle cx="193" cy="176" r="1"/><circle cx="160" cy="199" r="1"/><circle cx="154" cy="199" r="1"/><circle cx="166" cy="199" r="1"/></g>
+<ellipse cx="140" cy="100" rx="14" ry="5" fill="#fff" opacity=".2" transform="rotate(-14 140 100)"/>
+<ellipse cx="124" cy="146" rx="5" ry="9" fill="#fff" opacity=".16" transform="rotate(14 124 146)"/>
+<ellipse cx="196" cy="146" rx="5" ry="9" fill="#fff" opacity=".16" transform="rotate(-14 196 146)"/>
+<path d="M205 120q4 8 0 13q-4-5 0-13z" fill="#bfe9ff" opacity=".55"/>
+</g>
+</svg>
     </div>
   </section>
   <section id="online" hidden>
@@ -308,7 +391,7 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
         <button id="btnStart" class="go" type="button">Kick off</button>
         <div class="keys-wrap">
           <h2>Controls</h2>
-          <ul class="keys">
+          <ul class="keys" id="keyList">
             <li><span class="k"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span> or arrows to move</li>
             <li><span class="k"><kbd>Space</kbd></span> pass · when defending: tap = tackle, hold = slide tackle (can be a foul)</li>
             <li><span class="k"><kbd>L</kbd></span> lob pass over defenders</li>
@@ -323,7 +406,7 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
   </section>
 
   <section id="game" hidden>
-    <div class="stage"><canvas id="cv" width="1200" height="800" aria-label="Soccer pitch"></canvas>
+    <div class="stage"><button type="button" id="setIn" class="setbtn" aria-label="Settings">⚙ Settings</button><canvas id="cv" width="1200" height="800" aria-label="Soccer pitch"></canvas>
       <div class="ovl">
         <div id="endNote" hidden></div>
         <div id="endBar" class="endbar" hidden>
@@ -337,21 +420,24 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
         </div>
       </div>
     </div>
-    <div class="legend keys-wrap">
+    <div class="legend keys-wrap" id="legend">
       <span><kbd>WASD</kbd> move</span><span><kbd>Space</kbd> pass / tackle (hold = slide)</span><span><kbd>L</kbd> lob</span><span><kbd>K</kbd> through</span><span><kbd>J</kbd> shoot (hold)</span><span><kbd>Shift</kbd> sprint</span><span><kbd>P</kbd> pause</span>
     </div>
     <div class="touch" id="touch">
       <div class="pad" id="pad"><b id="stick"></b></div>
       <div class="tb">
-        <button type="button" data-k="Space">Pass</button>
-        <button type="button" data-k="KeyJ">Shoot</button>
-        <button type="button" data-k="KeyL">Lob</button>
-        <button type="button" data-k="KeyK">Through</button>
-        <button type="button" data-k="ShiftLeft">Sprint</button>
+        <button type="button" data-k="pass">Pass</button>
+        <button type="button" data-k="shoot">Shoot</button>
+        <button type="button" data-k="lob">Lob</button>
+        <button type="button" data-k="thr">Through</button>
+        <button type="button" data-k="sprint">Sprint</button>
+        <button type="button" data-k="sw">Switch</button>
       </div>
     </div>
   </section>
 </main>
+<button type="button" id="setTop" class="setbtn" aria-label="Settings">⚙ Settings</button>
+<div id="setOv" class="setov" hidden><div class="setbox" role="dialog" aria-modal="true" aria-label="Settings"><div id="setBody"></div></div></div>
 <script>(()=>{'use strict';
 const TAU=Math.PI*2;
 const PW=1100,PH=680,MX=50,MY=60,CW=PW+MX*2,CH=PH+MY*2;
@@ -443,10 +529,48 @@ const HAIR=['#1a1410','#3b2416','#d8b45a','#8a3a1c','#101018','#5a5a66'];
 const G={state:'menu',paused:false,t:0,time:120,len:120,score:[0,0],teams:[TEAMS[0],TEAMS[1]],diff:'normal',
  cam:{x:PW/2,y:PH/2},aim:{on:false,y:PH/2},stam:1,exh:false,sprintOn:false,players:[],ball:null,ctrl:null,lock:0,timer:0,lastScorer:0,shake:0,parts:[],demo:false,possTeam:-1,stats:{shots:[0,0]}};
 
+
+/* ---------- settings ---------- */
+const ACTS=[['up','Move up'],['down','Move down'],['left','Move left'],['right','Move right'],['sprint','Sprint'],['pass','Pass / tackle (hold = slide)'],['lob','Lob pass'],['thr','Through ball'],['shoot','Shoot (hold to charge)'],['sw','Switch player'],['pause','Pause']];
+const MOVEA={up:1,down:1,left:1,right:1,sprint:1};
+const DEFKEYS={up:['KeyW','ArrowUp'],down:['KeyS','ArrowDown'],left:['KeyA','ArrowLeft'],right:['KeyD','ArrowRight'],sprint:['ShiftLeft','ShiftRight'],pass:['Space',''],lob:['KeyL',''],thr:['KeyK',''],shoot:['KeyJ',''],sw:['KeyM',''],pause:['KeyP','Escape']};
+const DEFSET={keys:DEFKEYS,all:true,fx:true,crowd:true,master:.8,fxV:1,crowdV:1,auto:false,labels:true,shake:true,blurPause:true,hints:true};
+function cloneKeys(k){const o={};for(const a in k)o[a]=k[a].slice();return o}
+const S=Object.assign({},DEFSET,{keys:cloneKeys(DEFKEYS)});
+const SKEY='minicup.settings.v1';
+try{const r=JSON.parse(localStorage.getItem(SKEY)||'null');if(r&&typeof r==='object'){for(const k in DEFSET)if(k!=='keys'&&typeof r[k]===typeof DEFSET[k])S[k]=r[k];if(r.keys)for(const a in DEFKEYS)if(Array.isArray(r.keys[a])&&r.keys[a].length===2)S.keys[a]=r.keys[a].map(x=>typeof x==='string'?x:'')}}catch(e){}
+function saveSet(){try{localStorage.setItem(SKEY,JSON.stringify(S))}catch(e){}}
+const ACTOF={};
+function rebuildKeys(){for(const c in ACTOF)delete ACTOF[c];for(const a in S.keys)S.keys[a].forEach(c=>{if(c)ACTOF[c]=a})}
+rebuildKeys();
+function kn(c){
+ if(!c)return'—';
+ const m={Space:'Space',ShiftLeft:'Shift',ShiftRight:'R-Shift',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→',Escape:'Esc',Enter:'Enter',Tab:'Tab',Backquote:'`',Minus:'-',Equal:'=',BracketLeft:'[',BracketRight:']',Semicolon:';',Quote:"'",Comma:',',Period:'.',Slash:'/',Backslash:'\\',ControlLeft:'Ctrl',ControlRight:'R-Ctrl',AltLeft:'Alt',AltRight:'R-Alt',CapsLock:'Caps'};
+ if(m[c])return m[c];
+ return c.replace(/^Key/,'').replace(/^Digit/,'').replace(/^Numpad/,'Num ');
+}
+const K1=a=>kn(S.keys[a][0]||S.keys[a][1]);
+function hintsHTML(){
+ const k=a=>'<kbd>'+K1(a)+'</kbd>';
+ return '<span>'+k('up')+k('left')+k('down')+k('right')+' move</span><span>'+k('pass')+' pass / tackle (hold = slide)</span><span>'+k('lob')+' lob</span><span>'+k('thr')+' through</span><span>'+k('shoot')+' shoot (hold)</span><span>'+k('sprint')+' sprint</span><span>'+k('sw')+' switch player</span><span>'+k('pause')+' pause</span>';
+}
+function renderHints(){
+ const lg=document.getElementById('legend');if(lg){lg.innerHTML=hintsHTML();lg.style.visibility=S.hints?'':'hidden'}
+ const kb=a=>'<kbd>'+K1(a)+'</kbd>',ul=document.getElementById('keyList');
+ if(ul)ul.innerHTML='<li><span class="k">'+kb('up')+kb('left')+kb('down')+kb('right')+'</span> or the second binding to move</li>'
+  +'<li><span class="k">'+kb('pass')+'</span> pass · when defending: tap = tackle, hold = slide tackle (can be a foul)</li>'
+  +'<li><span class="k">'+kb('lob')+'</span> lob pass over defenders</li><li><span class="k">'+kb('thr')+'</span> through ball into space</li>'
+  +'<li><span class="k">'+kb('shoot')+'</span> shoot, hold to charge. Near goal, time the moving aim line</li>'
+  +'<li><span class="k">'+kb('sprint')+'</span> sprint (uses stamina)</li>'
+  +'<li><span class="k">'+kb('sw')+'</span> switch player (you only switch when you press it)</li>'
+  +'<li><span class="k">'+kb('pause')+'</span> pause · change any key in Settings</li>';
+}
+
 /* ---------- sound ---------- */
-let AC=null,muted=false;
+let AC=null,muted=!S.all,MG=null,SB=null,CB=null;
+function applyVol(){if(!MG)return;MG.gain.value=S.master;SB.gain.value=S.fx?S.fxV:0;CB.gain.value=S.crowd?S.crowdV:0}
 function audio(){
- try{ if(!AC){const C=window.AudioContext||window.webkitAudioContext; if(C)AC=new C();} if(AC&&AC.state==='suspended')AC.resume(); }catch(e){AC=null}
+ try{ if(!AC){const C=window.AudioContext||window.webkitAudioContext; if(C)AC=new C();} if(AC&&!MG){MG=AC.createGain();SB=AC.createGain();CB=AC.createGain();SB.connect(MG);CB.connect(MG);MG.connect(AC.destination);applyVol()} if(AC&&AC.state==='suspended')AC.resume(); }catch(e){AC=null}
  return AC;
 }
 function tone(f,d,type,v,slide,delay){
@@ -456,7 +580,7 @@ function tone(f,d,type,v,slide,delay){
   o.type=type||'sine';o.frequency.setValueAtTime(f,t);
   if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+d);
   g.gain.setValueAtTime(v||.1,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-  o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.03);
+  o.connect(g);g.connect(SB);o.start(t);o.stop(t+d+.03);
  }catch(e){}
 }
 function noise(d,v,fc,delay){
@@ -466,7 +590,7 @@ function noise(d,v,fc,delay){
   for(let i=0;i<n;i++)ch[i]=(Math.random()*2-1)*(1-i/n);
   const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
   s.buffer=buf;f.type='lowpass';f.frequency.value=fc||900;g.gain.value=v||.1;
-  s.connect(f);f.connect(g);g.connect(AC.destination);s.start(AC.currentTime+(delay||0));
+  s.connect(f);f.connect(g);g.connect(SB);s.start(AC.currentTime+(delay||0));
  }catch(e){}
 }
 function swell(d,v,fc,q,atk,delay,lfo,fc2){
@@ -479,7 +603,7 @@ function swell(d,v,fc,q,atk,delay,lfo,fc2){
   if(fc2)f.frequency.exponentialRampToValueAtTime(fc2,t+d);
   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+atk);g.gain.exponentialRampToValueAtTime(.0001,t+d);
   if(lfo){const o=AC.createOscillator(),og=AC.createGain();o.frequency.value=lfo;og.gain.value=v*.3;o.connect(og);og.connect(g.gain);o.start(t);o.stop(t+d)}
-  s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t);
+  s.connect(f);f.connect(g);g.connect(CB);s.start(t);
  }catch(e){}
 }
 function choir(d,v,f0,f1,n,atk,vowel,delay,spread){
@@ -496,7 +620,7 @@ function choir(d,v,f0,f1,n,atk,vowel,delay,spread){
    l.frequency.value=4+Math.random()*3;lg.gain.value=b0*.014;l.connect(lg);lg.connect(o.frequency);
    o.connect(bus);o.start(t);o.stop(t+d+.05);l.start(t);l.stop(t+d+.05);
   }
-  env.connect(AC.destination);
+  env.connect(CB);
  }catch(e){}
 }
 let REV=null;
@@ -504,7 +628,7 @@ function reverb(){
  if(REV&&REV.context===AC)return REV;
  const n=Math.floor(AC.sampleRate*2.0),ir=AC.createBuffer(2,n,AC.sampleRate);
  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2.8)}
- const cv=AC.createConvolver(),wet=AC.createGain();cv.buffer=ir;wet.gain.value=.5;cv.connect(wet);wet.connect(AC.destination);REV=cv;return cv;
+ const cv=AC.createConvolver(),wet=AC.createGain();cv.buffer=ir;wet.gain.value=.5;cv.connect(wet);wet.connect(CB);REV=cv;return cv;
 }
 const VOW={a:[800,1250],e:[560,1900],o:[450,850],u:[330,800]};
 /* one shouting person: pitched glottal-style voice, two moving formants, vibrato, slight pan, stadium echo */
@@ -524,7 +648,7 @@ function voice(t,d,v,f0,va,vb,peak){
  mix.connect(env);
  let out=env;
  if(AC.createStereoPanner){const p=AC.createStereoPanner();p.pan.value=Math.random()*1.6-.8;env.connect(p);out=p}
- out.connect(AC.destination);const send=AC.createGain();send.gain.value=.7;out.connect(send);send.connect(rv);
+ out.connect(CB);const send=AC.createGain();send.gain.value=.7;out.connect(send);send.connect(rv);
  o.start(t);o.stop(t+d+.05);l.start(t);l.stop(t+d+.05);
 }
 function crowdWave(delay,n,v,dur,vs){
@@ -576,7 +700,7 @@ function crowdTick(dt){
    for(let i=0;i<n;i++){l=l*.97+(Math.random()*2-1)*.2;ch[i]=l}
    const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();
    s.buffer=buf;s.loop=true;f.type='lowpass';f.frequency.value=380;f.Q.value=.6;g.gain.value=0;
-   s.connect(f);f.connect(g);g.connect(AC.destination);s.start();CR.src=s;CR.g=g;
+   s.connect(f);f.connect(g);g.connect(CB);s.start();CR.src=s;CR.g=g;
   }catch(e){return}
  }
  let tgt=0;
@@ -590,7 +714,6 @@ function crowdTick(dt){
 }
 
 /* ---------- input state ---------- */
-const KEYMAP={KeyW:'up',ArrowUp:'up',KeyS:'down',ArrowDown:'down',KeyA:'left',ArrowLeft:'left',KeyD:'right',ArrowRight:'right',ShiftLeft:'sprint',ShiftRight:'sprint'};
 const held={up:0,down:0,left:0,right:0,sprint:0};
 const joy={x:0,y:0};
 const act={pass:0,lob:0,thr:0,shoot:null,charging:false,chargeT:0,tk:false,tkT:0};
@@ -600,33 +723,47 @@ function getInput(){
  const m=Math.hypot(x,y);if(m>1){x/=m;y/=m}
  return{x,y};
 }
-function press(code){
+function press(a){
  if(G.intro>.3&&!(NET&&NET.role==='guest'))G.intro=.3;
- if(KEYMAP[code]){held[KEYMAP[code]]=1;return}
  if(NET&&NET.role==='guest'){
-  if(code==='Space')NET.inp.pd++;else if(code==='KeyL')NET.inp.ld++;else if(code==='KeyK')NET.inp.kd++;
-  else if(code==='KeyJ'){NET.inp.jd++;NET.inp.j=1}
-  else if(code==='KeyM')toggleMute();
+  if(a==='pass')NET.inp.pd++;else if(a==='lob')NET.inp.ld++;else if(a==='thr')NET.inp.kd++;
+  else if(a==='shoot'){NET.inp.jd++;NET.inp.j=1}
+  else if(a==='sw')NET.inp.sd++;
   return;
  }
- if(code==='Space'){const ow=G.ball&&G.ball.owner;if(G.state==='play'&&ow&&ow.team!==HT&&!G.demo){act.tk=true;act.tkT=0;act.pass=0}else act.pass=.22}
- else if(code==='KeyL')act.lob=.22;
- else if(code==='KeyK')act.thr=.22;
- else if(code==='KeyJ'){if(!act.charging){act.charging=true;act.chargeT=0}}
- else if(code==='KeyP'||code==='Escape')togglePause();
- else if(code==='KeyM')toggleMute();
+ if(a==='pass'){const ow=G.ball&&G.ball.owner;if(G.state==='play'&&ow&&ow.team!==HT&&!G.demo){act.tk=true;act.tkT=0;act.pass=0}else act.pass=.22}
+ else if(a==='lob')act.lob=.22;
+ else if(a==='thr')act.thr=.22;
+ else if(a==='shoot'){if(!act.charging){act.charging=true;act.chargeT=0}}
+ else if(a==='pause')togglePause();
+ else if(a==='sw')switchPlayer();
 }
-function release(code){
- if(KEYMAP[code]){held[KEYMAP[code]]=0;return}
- if(NET&&NET.role==='guest'){if(code==='Space')NET.inp.pu++;else if(code==='KeyJ'){NET.inp.ju++;NET.inp.j=0}return}
- if(code==='Space'&&act.tk){act.tk=false;act.pass=.22;return}
- if(code==='KeyJ'&&act.charging){act.charging=false;act.shoot={power:.45+.55*Math.min(1,act.chargeT/.65),t:.22}}
+function release(a){
+ if(NET&&NET.role==='guest'){if(a==='pass')NET.inp.pu++;else if(a==='shoot'){NET.inp.ju++;NET.inp.j=0}return}
+ if(a==='pass'&&act.tk){act.tk=false;act.pass=.22;return}
+ if(a==='shoot'&&act.charging){act.charging=false;act.shoot={power:.45+.55*Math.min(1,act.chargeT/.65),t:.22}}
+}
+/* manual player switch (also used by the online guest through the host) */
+function switchPlayer(){
+ if(G.demo||G.paused||(G.state!=='play'&&G.state!=='countdown'))return;
+ const b=G.ball,cur=G.ctrl;
+ if(cur&&b.owner===cur)return;
+ const R=G.rs;if(R&&cur&&R.taker===cur&&!R.kicked)return;
+ const ch=G.swc||(G.swc=[null,null]),c=ch[HT];
+ let chain=(c&&G.t-c.t<.9&&c.from===cur)?c.list:[];
+ if(!chain.includes(cur)&&cur)chain=[cur].concat(chain);
+ let cand=G.players.filter(p=>p.team===HT&&!p.isGK&&!chain.includes(p));
+ if(!cand.length){chain=cur?[cur]:[];cand=G.players.filter(p=>p.team===HT&&!p.isGK&&p!==cur)}
+ cand.sort((p,q)=>dist(p,b)-dist(q,b));
+ const t=cand[0];if(!t)return;
+ chain.push(t);setCtrl(t);G.lock=0;ch[HT]={t:G.t,from:t,list:chain};
+ tone(900,.07,'square',.05);
 }
 function clearInput(){held.up=held.down=held.left=held.right=held.sprint=0;joy.x=joy.y=0;act.pass=act.lob=act.thr=0;act.tk=false;act.shoot=null;act.charging=false}
 
 /* ---------- online: second human context ---------- */
 let NET=null,GUEST=null,HT=0;
-function mkCtx(team){return{team,held:{up:0,down:0,left:0,right:0,sprint:0},act:{pass:0,lob:0,thr:0,shoot:null,charging:false,chargeT:0,tk:false,tkT:0},joy:{x:0,y:0},aim:{on:false,y:340},stam:1,exh:false,sprintOn:false,lock:0,ctrl:null,seen:{pd:0,pu:0,ld:0,kd:0,jd:0,ju:0}}}
+function mkCtx(team){return{team,held:{up:0,down:0,left:0,right:0,sprint:0},act:{pass:0,lob:0,thr:0,shoot:null,charging:false,chargeT:0,tk:false,tkT:0},joy:{x:0,y:0},aim:{on:false,y:340},stam:1,exh:false,sprintOn:false,lock:0,ctrl:null,seen:{pd:0,pu:0,ld:0,kd:0,jd:0,ju:0,sd:0}}}
 function withCtx(c,fn){
  const sv={held:Object.assign({},held),act:Object.assign({},act),joy:Object.assign({},joy),aim:Object.assign({},G.aim),stam:G.stam,exh:G.exh,sprintOn:G.sprintOn,lock:G.lock,ctrl:G.ctrl,ht:HT};
  Object.assign(held,c.held);Object.assign(act,c.act);Object.assign(joy,c.joy);Object.assign(G.aim,c.aim);
@@ -1069,6 +1206,10 @@ function updateCtrl(dt){
  if(G.demo)return;
  G.lock=Math.max(0,G.lock-dt);
  const b=G.ball,cur=G.ctrl;
+ if(!(S.auto&&!G.online)){
+  if(!cur){let best=null,bd=1e9;for(const p of G.players)if(p.team===HT&&!p.isGK){const d=dist(p,b);if(d<bd){bd=d;best=p}}if(best)setCtrl(best)}
+  return;
+ }
  if(b.owner&&b.owner.team===HT&&!b.owner.isGK){if(cur!==b.owner)setCtrl(b.owner);return}
  if(!b.owner&&b.passTarget&&b.passT>0&&b.passTarget.team===HT&&!b.passTarget.isGK){if(cur!==b.passTarget)setCtrl(b.passTarget);return}
  if(G.lock>0&&cur)return;
@@ -1151,7 +1292,7 @@ function humanControl(p,dt){
   act[key]=0;
   if(t){
    if(kind==='pass')launchGround(p,t);else if(kind==='lob')launchLob(p,t);else launchThrough(p,t);
-   setCtrl(t);G.lock=.9;
+   if(S.auto&&!G.online){setCtrl(t);G.lock=.9}else G.lock=.4;
   }else{
    if(kind==='lob')launchLobTo(p,p.x+ax*320,p.y+ay*320);else launchGroundTo(p,p.x+ax*260,p.y+ay*260);
    G.lock=.4;
@@ -1501,12 +1642,13 @@ function applyGuestInput(){
  const c=GUEST,i=NET&&NET.gin;if(!i)return;
  held.left=i.x<0?-i.x:0;held.right=i.x>0?i.x:0;held.up=i.y<0?-i.y:0;held.down=i.y>0?i.y:0;held.sprint=i.s?1:0;
  const s=c.seen;
- if(i.pd>s.pd){s.pd=i.pd;press('Space')}
- if(i.ld>s.ld){s.ld=i.ld;press('KeyL')}
- if(i.kd>s.kd){s.kd=i.kd;press('KeyK')}
- if(i.jd>s.jd){s.jd=i.jd;press('KeyJ')}
- if(i.pu>s.pu){s.pu=i.pu;release('Space')}
- if(i.ju>s.ju){s.ju=i.ju;release('KeyJ')}
+ if(i.pd>s.pd){s.pd=i.pd;press('pass')}
+ if(i.ld>s.ld){s.ld=i.ld;press('lob')}
+ if(i.kd>s.kd){s.kd=i.kd;press('thr')}
+ if(i.jd>s.jd){s.jd=i.jd;press('shoot')}
+ if((i.sd|0)>(s.sd|0)){s.sd=i.sd;press('sw')}
+ if(i.pu>s.pu){s.pu=i.pu;release('pass')}
+ if(i.ju>s.ju){s.ju=i.ju;release('shoot')}
 }
 /* ---------- main update ---------- */
 function update(dt){
@@ -2003,6 +2145,7 @@ function drawLabels(){
  const c=G.ctrl;
  ctx.textAlign='center';ctx.textBaseline='top';ctx.lineJoin='round';
  for(const p of G.players){
+  if(!S.labels&&p!==c)continue;
   const q=P(p.x,p.y,0),s=q[2],isC=p===c&&!G.demo;
   ctx.font='700 '+Math.max(8,(isC?7.8:6.6)*s*.889).toFixed(1)+'px "Barlow Semi Condensed",system-ui,sans-serif';
   const txt=isC?p.label+'  '+p.rt.toFixed(1):p.label,y=q[1]+5.33*s;
@@ -2163,7 +2306,7 @@ function drawHUD(){
  if(G.paused){
   ctx.fillStyle='rgba(5,10,30,.65)';ctx.fillRect(0,0,CW,CH);
   textC('PAUSED',cx,cy-10,"400 96px Bungee,Impact,sans-serif",'#fff');
-  textC('Press P to resume',cx,cy+60,"700 26px 'Barlow Semi Condensed',system-ui,sans-serif",'#9ba8d6');
+  textC('Press '+K1('pause')+' to resume',cx,cy+60,"700 26px 'Barlow Semi Condensed',system-ui,sans-serif",'#9ba8d6');
  }
 }
 function drawOverlays(){if(G.intro>0)drawIntro()}
@@ -2172,7 +2315,7 @@ function draw(){
  const s=view.scale;
  ctx.setTransform(s,0,0,s,0,0);
  ctx.save();
- if(G.shake>.3)ctx.translate(rnd(-1,1)*G.shake*.5,rnd(-1,1)*G.shake*.5);
+ if(S.shake&&G.shake>.3)ctx.translate(rnd(-1,1)*G.shake*.5,rnd(-1,1)*G.shake*.5);
  drawBackdrop();drawField();drawGoalNet(true);drawGoalNet(false);
  drawWorld();
  drawGoalFront(true);drawGoalFront(false);
@@ -2228,19 +2371,96 @@ function togglePause(){
  $('#btnPause').textContent=G.paused?'Resume':'Pause';
 }
 function toggleMute(){
- muted=!muted;$('#btnMute').textContent=muted?'Sound off':'Sound on';
+ S.all=!S.all;muted=!S.all;saveSet();syncSoundBtn();
 }
-const GAMEKEYS=['Space','KeyL','KeyK','KeyJ','KeyP','Escape','KeyM'];
+function syncSoundBtn(){const e=document.getElementById('btnMute');if(e)e.textContent=muted?'Sound off':'Sound on'}
+
+const SET={open:false,listen:null,wePaused:false,msg:''};
+function tgl(id,on,label,sub){return '<div class="setrow"><span>'+label+(sub?'<small>'+sub+'</small>':'')+'</span><div class="ctl"><button type="button" class="tg" data-tg="'+id+'" aria-pressed="'+on+'">'+(on?'On':'Off')+'</button></div></div>'}
+function sld(id,v,label){return '<div class="setrow"><span>'+label+'</span><div class="ctl"><input type="range" min="0" max="100" value="'+Math.round(v*100)+'" data-sl="'+id+'" aria-label="'+label+'"><b style="min-width:38px;text-align:right">'+Math.round(v*100)+'%</b></div></div>'}
+function renderSettings(){
+ const L=SET.listen;
+ let h='<h2>Settings</h2><p class="note" style="margin:0">Saved on this device. Click a key box, then press the new key (Esc cancels, Backspace clears).</p>';
+ h+='<h3>Controls</h3>';
+ for(const[a,nm]of ACTS){
+  h+='<div class="setrow"><span>'+nm+'</span><div class="ctl">';
+  for(let i=0;i<2;i++){const on=L&&L.a===a&&L.i===i;h+='<button type="button" class="keyb'+(on?' listen':'')+'" data-key="'+a+':'+i+'">'+(on?'Press a key…':kn(S.keys[a][i]))+'</button>'}
+  h+='</div></div>';
+ }
+ h+='<p class="setmsg" role="status">'+SET.msg+'</p>';
+ h+='<h3>Sound</h3>'+tgl('all',S.all,'Sound','Master switch for everything')+sld('master',S.master,'Master volume')
+  +tgl('fx',S.fx,'Sound effects','Passes, shots, tackles, whistle')+sld('fxV',S.fxV,'Effects volume')
+  +tgl('crowd',S.crowd,'Crowd','Cheering and stadium noise')+sld('crowdV',S.crowdV,'Crowd volume');
+ h+='<h3>Gameplay &amp; display</h3>'+tgl('auto',S.auto,'Auto-switch player','Off: you keep your player until you press '+K1('sw')+'. Local matches only; online is always manual.')
+  +tgl('labels',S.labels,'Show every player’s name','Off: only your controlled player has a name')
+  +tgl('shake',S.shake,'Screen shake','On big shots and tackles')
+  +tgl('blurPause',S.blurPause,'Pause when you leave the tab','Local matches only')
+  +tgl('hints',S.hints,'Show controls under the pitch','');
+ h+='<div class="setfoot"><button type="button" class="btn" data-set="reset">Reset to defaults</button><button type="button" class="btn primary" style="background:var(--team);color:var(--team-ink)" data-set="close">Done</button></div>';
+ const bd=document.getElementById('setBody'),y=bd.parentNode.scrollTop;bd.innerHTML=h;bd.parentNode.scrollTop=y;
+}
+function openSettings(){
+ if(SET.open)return;
+ SET.open=true;SET.listen=null;SET.msg='';clearInput();
+ SET.wePaused=false;
+ if(!NET&&(G.state==='play'||G.state==='countdown'||G.state==='restart'||G.state==='out')&&!G.paused&&!document.getElementById('game').hidden){togglePause();SET.wePaused=true}
+ document.getElementById('setOv').hidden=false;renderSettings();
+ const f=document.querySelector('#setBody [data-set=close]');if(f)f.focus();
+}
+function closeSettings(){
+ if(!SET.open)return;
+ SET.open=false;SET.listen=null;document.getElementById('setOv').hidden=true;saveSet();clearInput();
+ if(SET.wePaused&&G.paused)togglePause();SET.wePaused=false;
+}
+function captureKey(code){
+ const L=SET.listen;SET.listen=null;if(!L)return;
+ if(code==='Escape'){SET.msg='';renderSettings();return}
+ const cur=S.keys[L.a];
+ if(code==='Backspace'||code==='Delete'){cur[L.i]='';SET.msg='Cleared.'}
+ else{
+  const old=cur[L.i];
+  for(const a in S.keys)for(let i=0;i<2;i++)if(S.keys[a][i]===code&&!(a===L.a&&i===L.i)){S.keys[a][i]=a===L.a?'':old;SET.msg=kn(code)+' was already used for “'+ACTS.find(x=>x[0]===a)[1]+'”, so that one was '+(old&&a!==L.a?'swapped to '+kn(old):'cleared')+'.'}
+  cur[L.i]=code;if(!SET.msg||!SET.msg.includes('already'))SET.msg='';
+ }
+ rebuildKeys();renderHints();saveSet();renderSettings();
+}
+function setupSettings(){
+ window.addEventListener('keydown',e=>{
+  if(!SET.open)return;
+  if(SET.listen){e.preventDefault();e.stopImmediatePropagation();if(['MetaLeft','MetaRight','ContextMenu'].includes(e.code))return;captureKey(e.code);return}
+  if(e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeSettings()}
+ },true);
+ const ov=document.getElementById('setOv');
+ ov.addEventListener('click',e=>{
+  if(e.target===ov){closeSettings();return}
+  const k=e.target.closest('[data-key]'),t=e.target.closest('[data-tg]'),b=e.target.closest('[data-set]');
+  if(k){const[a,i]=k.dataset.key.split(':');SET.listen={a,i:+i};SET.msg='';renderSettings();return}
+  if(t){const id=t.dataset.tg;S[id]=!S[id];if(id==='all')muted=!S.all;applyVol();saveSet();syncSoundBtn();if(id==='hints')renderHints();if(id==='all'&&S.all)audio();renderSettings();return}
+  if(b){
+   if(b.dataset.set==='close')closeSettings();
+   else if(b.dataset.set==='reset'){const k=S.keys;Object.assign(S,DEFSET,{keys:cloneKeys(DEFKEYS)});muted=!S.all;rebuildKeys();renderHints();applyVol();saveSet();syncSoundBtn();SET.msg='Everything is back to the defaults.';renderSettings()}
+  }
+ });
+ ov.addEventListener('input',e=>{
+  const r=e.target.closest('[data-sl]');if(!r)return;
+  S[r.dataset.sl]=r.value/100;r.nextElementSibling.textContent=r.value+'%';applyVol();audio();
+ });
+ ov.addEventListener('change',e=>{if(e.target.closest('[data-sl]')){saveSet();if(AC){tone(660,.08,'triangle',.08)}}});
+}
 function wireInput(){
  window.addEventListener('keydown',e=>{
-  if(G.state==='menu'||e.metaKey||e.ctrlKey||e.altKey)return;
-  if(KEYMAP[e.code]||GAMEKEYS.includes(e.code)){e.preventDefault();if(!e.repeat)press(e.code)}
+  if(SET.open||G.state==='menu'||e.metaKey||e.ctrlKey||e.altKey)return;
+  const a=ACTOF[e.code];if(!a)return;
+  e.preventDefault();if(e.repeat)return;
+  if(MOVEA[a])held[a]=1;else press(a);
  });
  window.addEventListener('keyup',e=>{
-  if(G.state==='menu')return;
-  if(KEYMAP[e.code]||GAMEKEYS.includes(e.code)){e.preventDefault();release(e.code)}
+  if(SET.open||G.state==='menu')return;
+  const a=ACTOF[e.code];if(!a)return;
+  e.preventDefault();
+  if(MOVEA[a])held[a]=0;else release(a);
  });
- window.addEventListener('blur',()=>{if(G.state==='play'&&!G.paused)togglePause();clearInput()});
+ window.addEventListener('blur',()=>{if(S.blurPause&&G.state==='play'&&!G.paused&&!SET.open)togglePause();clearInput()});
  const pad=$('#pad'),stick=$('#stick');
  const setJoy=e=>{
   const r=pad.getBoundingClientRect(),R=r.width/2;
@@ -2254,8 +2474,9 @@ function wireInput(){
  const endJoy=()=>{joy.x=joy.y=0;stick.style.transform=''};
  pad.addEventListener('pointerup',endJoy);pad.addEventListener('pointercancel',endJoy);
  document.querySelectorAll('.tb button').forEach(b=>{
-  b.addEventListener('pointerdown',e=>{e.preventDefault();press(b.dataset.k)});
-  const up=()=>release(b.dataset.k);
+  const k=b.dataset.k;
+  b.addEventListener('pointerdown',e=>{e.preventDefault();if(MOVEA[k])held[k]=1;else press(k)});
+  const up=()=>{if(MOVEA[k])held[k]=0;else release(k)};
   b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('pointerleave',up);
  });
  $('#btnStart').addEventListener('click',startQuick);
@@ -2264,6 +2485,7 @@ function wireInput(){
  wireFr();
  $('#btnPause').addEventListener('click',()=>{togglePause();$('#btnPause').blur()});
  $('#btnMute').addEventListener('click',()=>{toggleMute();$('#btnMute').blur()});
+ $('#setIn').addEventListener('click',()=>openSettings());$('#setTop').addEventListener('click',()=>openSettings());
  $('#btnQuit').addEventListener('click',leaveMatch);
  $('#btnRematch').addEventListener('click',()=>{if(CFG&&CFG.online==='host'){olRematch();return}if(CFG&&!CFG.fr&&!CFG.online)launchMatch(CFG)});
  $('#btnChange').addEventListener('click',leaveMatch);
@@ -2284,7 +2506,7 @@ function frame(ts){
  draw();
 }
 function init(){
- applyAccent();wireInput();wireTitle();wireOnline();loadSave().then(()=>{renderMode();updateTitle()});renderMode();
+ applyAccent();renderHints();syncSoundBtn();setupSettings();wireInput();wireTitle();wireOnline();loadSave().then(()=>{renderMode();updateTitle()});renderMode();
  requestAnimationFrame(frame);
 }
 
@@ -2954,18 +3176,18 @@ function launchOnline(role){
   GUEST=mkCtx(1);NET=null;
   launchMatch({user:OL.hostTeam,opp:OL.guestTeam,diff:'normal',len:OL.len,rosters:DEFAULT_ROSTERS,fr:false,online:'host'});
   G.online=true;
-  NET={role:'host',seq:0,evId:0,evs:[],lastSend:0,gin:{x:0,y:0,s:0,pd:0,pu:0,ld:0,kd:0,jd:0,ju:0,j:0},
+  NET={role:'host',seq:0,evId:0,evs:[],lastSend:0,gin:{x:0,y:0,s:0,pd:0,pu:0,ld:0,kd:0,jd:0,ju:0,j:0,sd:0},
    logSfx(n,p){if(n==='crowd')return;this.evs.push([++this.evId,n,r2(+p||0)]);if(this.evs.length>14)this.evs.shift()}};
   // ignore taps from the previous match
   const g=NET.gin;const pk=peersOf().guests.find(p=>p.peer===OL.gpeer);
   if(pk&&pk.presence&&pk.presence.i)Object.assign(g,pk.presence.i);
-  GUEST.seen={pd:g.pd,pu:g.pu,ld:g.ld,kd:g.kd,jd:g.jd,ju:g.ju};
+  GUEST.seen={pd:g.pd,pu:g.pu,ld:g.ld,kd:g.kd,jd:g.jd,ju:g.ju,sd:g.sd|0};
   ROOM.presence({s:null});
  }else{
   GUEST=null;
   launchMatch({user:OL.guestTeam,opp:OL.hostTeam,diff:'normal',len:OL.len,rosters:DEFAULT_ROSTERS,fr:false,online:'guest'});
   G.online=true;
-  NET={role:'guest',inp:{x:0,y:0,s:0,pd:0,pu:0,ld:0,kd:0,jd:0,ju:0,j:0},lastSend:0,lastEv:0,first:true,got:0};
+  NET={role:'guest',inp:{x:0,y:0,s:0,pd:0,pu:0,ld:0,kd:0,jd:0,ju:0,j:0,sd:0},lastSend:0,lastEv:0,first:true,got:0};
   ROOM.presence({inm:1});
  }
  $('#btnPause').hidden=true;
@@ -3060,3 +3282,5 @@ init();
 
 
 })();</script>
+
+</body></html>
