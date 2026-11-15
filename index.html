@@ -246,6 +246,13 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
 .setbtn:hover{filter:brightness(1.1)}
 #setTop{position:fixed;top:12px;right:12px;z-index:50}
 #menu{padding-top:46px}
+.tbtn.w{background:linear-gradient(135deg,#2fe27a,#19c8ff);color:#06122a}
+.wcg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.wcg .card{padding:10px 12px}.wcg h3{margin:0 0 6px!important}
+.gt{width:100%;border-collapse:collapse;font-size:14px}.gt th{font-size:11px;color:var(--mute);text-align:right;font-weight:600;padding:2px 4px}.gt th:first-child,.gt td:first-child{text-align:left}
+.gt td{padding:4px;text-align:right;border-top:1px solid var(--line)}.gt td.t{text-align:left;font-weight:600;white-space:nowrap}.gt tr.q td{background:rgba(47,226,122,.14)}.gt tr.q3 td{background:rgba(255,230,0,.10)}.gt tr.me td.t{color:#ffe600}
+.wcbr{display:grid;grid-template-columns:minmax(120px,1fr) 16px minmax(120px,1fr) 16px minmax(120px,1fr) 16px minmax(120px,1fr) 16px minmax(130px,1.1fr);grid-template-rows:auto repeat(32,minmax(30px,auto));min-width:980px;align-items:center}
+
 .bracket{display:grid;grid-template-columns:minmax(120px,1fr) 18px minmax(120px,1fr) 18px minmax(130px,1.1fr) 18px minmax(120px,1fr) 18px minmax(120px,1fr);grid-template-rows:auto repeat(5,minmax(34px,auto));min-width:820px;margin:8px 0 4px;align-items:center}
 .bh{text-align:center;font:700 12px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:#22c3ff;padding-bottom:6px}
 .bx{margin:4px 0;border-radius:10px;overflow:hidden;background:var(--panel2);border:2px solid var(--line);align-self:center}
@@ -288,12 +295,13 @@ main.app:has(#game:not([hidden])) ~ #setTop{display:none}
   <section id="title" aria-label="Mini Cup title screen">
     <div class="bgfield" aria-hidden="true"></div><div class="bgshade" aria-hidden="true"></div>
     <div class="left">
-      <p class="tag">16 clubs · 6 v 6 · franchise mode</p>
+      <p class="tag">16 clubs · 48 nations · 6 v 6</p>
       <h1 class="logo">Mini Cup</h1>
       <div class="ld" aria-hidden="true"><i></i></div>
       <div class="tbtns">
         <button type="button" id="tQuick" class="tbtn q" disabled>Quick play<small>Pick a club, play a match</small></button>
         <button type="button" id="tOnline" class="tbtn o" disabled>Play online<small>Create or join a room with a code</small></button>
+        <button type="button" id="tWc" class="tbtn w" disabled><span id="tWcT">World Cup</span><small id="tWcS">48 nations, groups, then knockouts</small></button>
         <button type="button" id="tRtg" class="tbtn r" disabled><span id="tRtgT">Road to Glory</span><small id="tRtgS">Pick one player, rise to the top</small></button>
         <button type="button" id="tFran" class="tbtn f" disabled><span id="tFranT">Franchise</span><small id="tFranS">Season, playoffs, squad</small></button>
       </div>
@@ -346,6 +354,7 @@ main.app:has(#game:not([hidden])) ~ #setTop{display:none}
     <div class="modes" role="group" aria-label="Game mode"><button type="button" id="btnBack" class="btn" aria-label="Back to title screen">← Back</button><button type="button" id="modeQm" aria-pressed="true" hidden>Quick match</button><button type="button" id="modeFr" aria-pressed="false" hidden>Franchise</button></div>
     <div id="fr" hidden><div id="frRoot"></div></div>
     <div id="rg" hidden><div id="rgRoot"></div></div>
+    <div id="wc" hidden><div id="wcRoot"></div></div>
     <div class="cols" id="qm">
       <section aria-labelledby="h-team">
         <h2 id="h-team">Your team</h2>
@@ -436,7 +445,30 @@ const CLUBS_RAW=[
  ['LA Galaxy','LAG','#ffffff','#00245d','#ffb000','#ffd24a',3,'Direct and physical'],
  ['Ajax','AJA','#ffffff','#d2122e','#7a5cff','#ff4a5a',3,'Young and fearless']
 ];
-const TEAMS=CLUBS_RAW.map((r,i)=>({ti:i,id:r[1],name:r[0],short:r[1],c:r[2],c2:r[3],gk:r[4],ui:r[5],tier:r[6],tag:r[7]}));
+
+const NCLUB=CLUBS_RAW.length;
+/* the 48 nations of the 2026 World Cup, in the real draw's groups: [name, code, kit, kit2, tier, group] */
+const NATS_RAW=[
+['Mexico','MEX','#0b7a4b','#ffffff',4,'A'],['South Africa','RSA','#ffd100','#007a4d',2,'A'],['South Korea','KOR','#e1253a','#0a2a6b',3,'A'],['Czechia','CZE','#d7141a','#11457e',3,'A'],
+['Canada','CAN','#d80621','#ffffff',3,'B'],['Bosnia and Herzegovina','BIH','#1c4fa8','#fecb00',2,'B'],['Qatar','QAT','#8a1538','#ffffff',2,'B'],['Switzerland','SUI','#d52b1e','#ffffff',4,'B'],
+['Brazil','BRA','#ffdc02','#009c3b',5,'C'],['Morocco','MAR','#c1272d','#006233',4,'C'],['Haiti','HAI','#00209f','#d21034',2,'C'],['Scotland','SCO','#0b2a6b','#ffffff',3,'C'],
+['United States','USA','#f4f4f4','#0a3161',4,'D'],['Paraguay','PAR','#d52b1e','#ffffff',3,'D'],['Australia','AUS','#ffcd00','#00843d',3,'D'],['Turkiye','TUR','#e30a17','#ffffff',3,'D'],
+['Germany','GER','#f4f4f4','#111111',4,'E'],['Curacao','CUW','#0b3d91','#f9e814',2,'E'],['Ivory Coast','CIV','#ff8200','#009e60',3,'E'],['Ecuador','ECU','#ffd100','#0033a0',3,'E'],
+['Netherlands','NED','#ff6a13','#111111',4,'F'],['Japan','JPN','#0f3b9c','#ffffff',4,'F'],['Sweden','SWE','#fecc02','#006aa7',3,'F'],['Tunisia','TUN','#e70013','#ffffff',3,'F'],
+['Belgium','BEL','#c8102e','#111111',4,'G'],['Egypt','EGY','#ce1126','#111111',3,'G'],['Iran','IRN','#f4f4f4','#239f40',3,'G'],['New Zealand','NZL','#f4f4f4','#111111',2,'G'],
+['Spain','ESP','#c60b1e','#ffc400',5,'H'],['Cape Verde','CPV','#003893','#cf2027',2,'H'],['Saudi Arabia','KSA','#006c35','#ffffff',2,'H'],['Uruguay','URU','#6ab2e7','#111111',4,'H'],
+['France','FRA','#1f3fa8','#e11d2e',5,'I'],['Senegal','SEN','#f4f4f4','#00853f',4,'I'],['Norway','NOR','#ba0c2f','#00205b',4,'I'],['Iraq','IRQ','#009a49','#ffffff',2,'I'],
+['Argentina','ARG','#75aadb','#ffffff',5,'J'],['Algeria','ALG','#f4f4f4','#006233',3,'J'],['Austria','AUT','#ed2939','#ffffff',3,'J'],['Jordan','JOR','#f4f4f4','#ce1126',2,'J'],
+['Portugal','POR','#8a0f1f','#006600',5,'K'],['DR Congo','COD','#fcd116','#ce1021',2,'K'],['Uzbekistan','UZB','#f4f4f4','#1eb53a',2,'K'],['Colombia','COL','#fcd116','#003893',4,'K'],
+['England','ENG','#f4f4f4','#1c2a6b',5,'L'],['Croatia','CRO','#e4202f','#ffffff',4,'L'],['Ghana','GHA','#ffffff','#ce1126',3,'L'],['Panama','PAN','#d21034','#005293',2,'L']
+];
+function lumOf(h){const x=parseInt(h.slice(1),16);return(.299*(x>>16)+.587*((x>>8)&255)+.114*(x&255))/255}
+const NAT_ROWS=NATS_RAW.map((r,k)=>{
+ const ui=lumOf(r[2])>.28&&lumOf(r[2])<.9?r[2]:lumOf(r[3])>.28?r[3]:'#ffd400';
+ const gks=['#c7ff3a','#ff5ad8','#00e0b0','#ffb000','#7cf0ff','#ff6b1a'];
+ return[r[0],r[1],r[2],r[3],gks[k%gks.length],ui,r[4],'Group '+r[5]+' · '+['','','Underdogs','Hard to beat','Dark horses','Title contenders'][r[4]]];
+});
+const TEAMS=CLUBS_RAW.concat(NAT_ROWS).map((r,i)=>({ti:i,id:r[1],name:r[0],short:r[1],c:r[2],c2:r[3],gk:r[4],ui:r[5],tier:r[6],tag:r[7]}));
 function colorDist(a,b){const x=parseInt(a.slice(1),16),y=parseInt(b.slice(1),16);return Math.hypot((x>>16)-(y>>16),((x>>8)&255)-((y>>8)&255),(x&255)-(y&255))}
 function kitFor(ti,vs){
  const T=TEAMS[ti];
@@ -1695,7 +1727,7 @@ function newFreeAgents(F,rng,n){
  return out.sort((a,b)=>b.r-a.r);
 }
 function makeSchedule(rng){
- const ids=[...Array(TEAMS.length).keys()];
+ const ids=[...Array(NCLUB).keys()];
  for(let i=ids.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
  const n=ids.length,rounds=[];let arr=ids.slice();
  for(let r=0;r<n-1;r++){
@@ -1708,12 +1740,12 @@ function makeSchedule(rng){
 function newFranchise(user,diff,len){
  const seed=((Date.now()^(user*7919))&0xffffff)||1,rng=rngOf(seed);
  const F={v:1,seed,user,diff,len,season:1,md:0,phase:'season',coins:200,
-  rosters:DEFAULT_ROSTERS.map(r=>r.map(p=>Object.assign({},p))),fa:[],faN:0,sched:null,po:null,champ:null,hist:[],goals:{},savedAt:0};
+  rosters:DEFAULT_ROSTERS.slice(0,NCLUB).map(r=>r.map(p=>Object.assign({},p))),fa:[],faN:0,sched:null,po:null,champ:null,hist:[],goals:{},savedAt:0};
  F.fa=newFreeAgents(F,rng,10);F.sched=makeSchedule(rng);
  return F;
 }
 function table(F){
- const t=TEAMS.map((_,i)=>({t:i,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));
+ const t=TEAMS.slice(0,NCLUB).map((_,i)=>({t:i,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));
  for(const r of F.sched)for(const m of r){
   if(!m.done)continue;
   const A=t[m.a],B=t[m.b];A.p++;B.p++;A.gf+=m.ga;A.ga+=m.gb;B.gf+=m.gb;B.ga+=m.ga;
@@ -2320,7 +2352,7 @@ function launchMatch(cfg){
  G.needWinner=!!cfg.needWinner;G.title=cfg.title||'';
  const fr=!!cfg.fr;
  $('#btnRematch').hidden=fr;$('#btnChange').textContent=fr?'Continue':'Change teams';
- $('#btnQuit').textContent=cfg.rtg?'Back to Road to Glory':fr?'Back to franchise':'Quit to menu';
+ $('#btnQuit').textContent=cfg.wc?'Back to World Cup':cfg.rtg?'Back to Road to Glory':fr?'Back to franchise':'Quit to menu';
  audio();sfx('intro');
  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
  $('#btnPause').textContent='Pause';$('#btnPause').hidden=false;$('#btnRematch').hidden=fr||!!cfg.online&&cfg.online!=='host';
@@ -2456,7 +2488,7 @@ function wireInput(){
  $('#btnStart').addEventListener('click',startQuick);
  $('#modeQm').addEventListener('click',()=>{MODE='qm';renderMode()});
  $('#modeFr').addEventListener('click',()=>{MODE='fr';renderMode()});
- wireFr();wireRg();
+ wireFr();wireRg();wireWc();
  $('#btnPause').addEventListener('click',()=>{togglePause();$('#btnPause').blur()});
  $('#btnMute').addEventListener('click',()=>{toggleMute();$('#btnMute').blur()});
  $('#setIn').addEventListener('click',()=>openSettings());$('#setTop').addEventListener('click',()=>openSettings());
@@ -2480,7 +2512,7 @@ function frame(ts){
  draw();
 }
 function init(){
- applyAccent();renderHints();syncSoundBtn();setupSettings();wireInput();wireTitle();wireOnline();loadSave().then(loadRG).then(()=>{renderMode();updateTitle()});renderMode();
+ applyAccent();renderHints();syncSoundBtn();setupSettings();wireInput();wireTitle();wireOnline();loadSave().then(loadRG).then(loadWC).then(()=>{renderMode();updateTitle()});renderMode();
  requestAnimationFrame(frame);
 }
 
@@ -2504,10 +2536,10 @@ const DIFFS=[['easy','Easy'],['normal','Normal'],['hard','Hard']],LENS=[[60,'1 m
 /* quick match */
 function renderQuick(){
  const grid=$('#teamGrid');
- grid.innerHTML=TEAMS.map((t,i)=>teamCard(i,i===sel.user,'data-i="'+i+'"',DEFAULT_ROSTERS)).join('');
- grid.querySelectorAll('.team').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i;sel.user=i;if(sel.opp===i)sel.opp=(i+1)%TEAMS.length;renderMode()}));
+ grid.innerHTML=TEAMS.slice(0,NCLUB).map((t,i)=>teamCard(i,i===sel.user,'data-i="'+i+'"',DEFAULT_ROSTERS)).join('');
+ grid.querySelectorAll('.team').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.i;sel.user=i;if(sel.opp===i)sel.opp=(i+1)%NCLUB;renderMode()}));
  const row=$('#oppRow');row.innerHTML='';
- TEAMS.forEach((t,i)=>{
+ TEAMS.slice(0,NCLUB).forEach((t,i)=>{
   const b=document.createElement('button');b.type='button';b.className='chip';b.disabled=i===sel.user;b.setAttribute('aria-pressed',String(i===sel.opp));
   b.style.setProperty('--c',t.c);b.style.setProperty('--c2',t.c2);b.innerHTML='<span class="dot"></span>'+esc(t.short);b.title=t.name;
   b.addEventListener('click',()=>{sel.opp=i;renderMode()});row.appendChild(b);
@@ -2520,10 +2552,10 @@ function renderQuick(){
 function startQuick(){launchMatch({user:sel.user,opp:sel.opp,diff:sel.diff,len:sel.len,rosters:DEFAULT_ROSTERS,fr:false})}
 function renderMode(){
  $('#modeQm').setAttribute('aria-pressed',String(MODE==='qm'));$('#modeFr').setAttribute('aria-pressed',String(MODE==='fr'));
- $('#qm').hidden=MODE!=='qm';$('#fr').hidden=MODE!=='fr';$('#rg').hidden=MODE!=='rg';
- $('#menuEyebrow').textContent='16 clubs · 6 v 6 · '+(MODE==='qm'?'quick match':MODE==='rg'?'road to glory':'franchise');
+ $('#qm').hidden=MODE!=='qm';$('#fr').hidden=MODE!=='fr';$('#rg').hidden=MODE!=='rg';$('#wc').hidden=MODE!=='wc';
+ $('#menuEyebrow').textContent=(MODE==='wc'?'48 nations':'16 clubs')+' · 6 v 6 · '+(MODE==='qm'?'quick match':MODE==='rg'?'road to glory':MODE==='wc'?'world cup':'franchise');
  $('#menuLede').hidden=MODE!=='qm';
- if(MODE==='qm'){accent(sel.user);renderQuick()}else if(MODE==='rg'){accent(RG?RG.user:RS.user);renderRg()}else{accent(FR?FR.user:FSET.user);renderFr()}
+ if(MODE==='qm'){accent(sel.user);renderQuick()}else if(MODE==='rg'){accent(RG?RG.user:RS.user);renderRg()}else if(MODE==='wc'){accent(WC?WC.user:WS.user);renderWc()}else{accent(FR?FR.user:FSET.user);renderFr()}
 }
 
 /* save: private db doc + localStorage fallback */
@@ -2559,7 +2591,7 @@ function renderFr(){
  root.innerHTML=FR&&FR.rosters?hubHtml():setupHtml();
 }
 function setupHtml(){
- return'<div class="cols"><section><h2>Choose your club</h2><div class="grid">'+TEAMS.map((t,i)=>teamCard(i,i===FSET.user,'data-a="pick" data-v="'+i+'"',DEFAULT_ROSTERS)).join('')+'</div></section>'+
+ return'<div class="cols"><section><h2>Choose your club</h2><div class="grid">'+TEAMS.slice(0,NCLUB).map((t,i)=>teamCard(i,i===FSET.user,'data-a="pick" data-v="'+i+'"',DEFAULT_ROSTERS)).join('')+'</div></section>'+
  '<aside class="side"><div class="card"><h3>Your season</h3><p style="margin:0">7 league matchdays, then the top 8 clubs enter a knockout playoff: quarter-finals, semi-finals and the championship final. Win matches to earn coins, then upgrade, cut, sign and trade players.</p></div>'+
  '<div><h2>Difficulty</h2>'+segHtml('fdiff',FSET.diff,DIFFS)+'</div><div><h2>Match length</h2>'+segHtml('flen',FSET.len,LENS)+'</div>'+
  '<button type="button" class="go" data-a="newfr">Start franchise</button>'+(FMSG?'<p class="note">'+esc(FMSG)+'</p>':'')+
@@ -2634,7 +2666,7 @@ function marketHtml(F){
  if(TR.ti==null||TR.ti===F.user)TR.ti=TEAMS.findIndex((_,i)=>i!==F.user);
  const mine=findPl(ro,TR.my);
  const mySel='<select data-a="trmy" aria-label="Your player">'+ro.slice().sort((a,b)=>POSORD[a.pos]-POSORD[b.pos]||b.r-a.r).map(p=>'<option value="'+p.id+'"'+(p.id===TR.my?' selected':'')+'>'+esc(p.name)+' · '+p.pos+' '+p.r.toFixed(1)+'</option>').join('')+'</select>';
- const tiSel='<select data-a="trti" aria-label="Other club">'+TEAMS.map((t,i)=>i===F.user?'':'<option value="'+i+'"'+(i===TR.ti?' selected':'')+'>'+esc(t.name)+'</option>').join('')+'</select>';
+ const tiSel='<select data-a="trti" aria-label="Other club">'+TEAMS.slice(0,NCLUB).map((t,i)=>i===F.user?'':'<option value="'+i+'"'+(i===TR.ti?' selected':'')+'>'+esc(t.name)+'</option>').join('')+'</select>';
  const cand=F.rosters[TR.ti].filter(p=>p.pos===mine.pos).sort((a,b)=>b.r-a.r).map(p=>{
   const q=tradeQuote(F,mine.id,TR.ti,p.id);
   return'<tr><td>'+esc(p.name)+'</td><td>'+stars(p.r)+' <span class="rt">'+p.r.toFixed(1)+'</span></td><td><button type="button" class="sbtn" data-a="trade" data-v="'+p.id+'"'+(F.coins<q.need?' disabled':'')+'>Trade'+(q.need?' · +'+q.need+' ◎':' · free')+'</button></td></tr>';
@@ -2775,7 +2807,7 @@ function rgSimStats(F,gu){
 }
 function renderRg(){const root=$('#rgRoot');root.innerHTML=RG&&RG.rosters?rgHub():rgSetup()}
 function rgSetup(){
- if(RS.step===1)return'<div class="cols"><section><h2>1 · Choose your club</h2><div class="grid">'+TEAMS.map((t,i)=>teamCard(i,i===RS.user,'data-a="rpick" data-v="'+i+'"',DEFAULT_ROSTERS)).join('')+'</div></section>'+
+ if(RS.step===1)return'<div class="cols"><section><h2>1 · Choose your club</h2><div class="grid">'+TEAMS.slice(0,NCLUB).map((t,i)=>teamCard(i,i===RS.user,'data-a="rpick" data-v="'+i+'"',DEFAULT_ROSTERS)).join('')+'</div></section>'+
   '<aside class="side"><div class="card"><h3>Road to Glory</h3><p style="margin:0">Pick a club, then pick <b>one player</b>. You only ever control that player — there is no switching and no squad management. Your teammates are AI. Play a 7-match season, then the top 8 reach the playoffs. Goals, assists and wins earn XP that raises your rating.</p></div>'+
   '<div><h2>Difficulty</h2>'+segHtml('rdiff',RS.diff,DIFFS)+'</div><div><h2>Match length</h2>'+segHtml('rlen',RS.len,LENS)+'</div>'+
   '<button type="button" class="go" data-a="rnext">Choose your player →</button></aside></div>';
@@ -2838,24 +2870,212 @@ function wireRg(){
  root.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&!el.disabled)rgAction(el)});
 }
 
+
+/* ---------- World Cup: 48 nations, 12 groups, 32-team knockout ---------- */
+let WC=null,WS={user:NCLUB+28,diff:'normal',len:120},wcTab='home',WCMSG='',WCCONF=false;
+const WCK='minicup.wc.v1',WF={rosters:DEFAULT_ROSTERS},WC_R=['Round of 32','Round of 16','Quarter-final','Semi-final','Final'];
+const WC_GL='ABCDEFGHIJKL';
+function wcSave(){
+ try{
+  if(!WC){try{localStorage.removeItem(WCK)}catch(e){}if(DBC)DBC.doc('wc').set({json:'',savedAt:Date.now()}).catch(()=>{});return}
+  WC.savedAt=Date.now();const json=JSON.stringify(WC);
+  try{localStorage.setItem(WCK,json)}catch(e){}
+  if(DBC)DBC.doc('wc').set({json,savedAt:WC.savedAt}).catch(()=>{});
+ }catch(e){}
+}
+async function loadWC(){
+ let data=null;
+ try{const raw=localStorage.getItem(WCK);if(raw)data=JSON.parse(raw)}catch(e){}
+ try{if(DBC){const snap=await DBC.doc('wc').get();if(snap.exists){const d=snap.data();if(d&&d.json){const x=JSON.parse(d.json);if(!data||(x.savedAt||0)>=(data.savedAt||0))data=x}}}}catch(e){}
+ if(data&&data.groups&&data.gm&&!WC&&G.state==='menu')WC=data;
+}
+function wcNew(user,diff,len){
+ const groups=[...WC_GL].map(L=>NATS_RAW.map((r,k)=>r[5]===L?NCLUB+k:-1).filter(x=>x>=0));
+ const pairs=[[[0,1],[2,3]],[[0,2],[1,3]],[[0,3],[1,2]]];
+ const gm=pairs.map(pp=>{const o=[];groups.forEach((g,gi)=>pp.forEach(([x,y])=>o.push({g:gi,a:g[x],b:g[y],ga:null,gb:null,done:false})));return o});
+ return{v:1,seed:((Date.now()^(user*7919))&0xffffff)||1,user,diff,len,phase:'group',md:0,groups,gm,ko:null,champ:null,out:null,simN:0,savedAt:0};
+}
+function wcTable(W,gi){
+ const rows=W.groups[gi].map(t=>({t,p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}));
+ for(const md of W.gm)for(const m of md){
+  if(m.g!==gi||!m.done)continue;
+  const A=rows.find(r=>r.t===m.a),B=rows.find(r=>r.t===m.b);A.p++;B.p++;A.gf+=m.ga;A.ga+=m.gb;B.gf+=m.gb;B.ga+=m.ga;
+  if(m.ga>m.gb){A.w++;B.l++;A.pts+=3}else if(m.ga<m.gb){B.w++;A.l++;B.pts+=3}else{A.d++;B.d++;A.pts++;B.pts++}
+ }
+ return rows.sort((x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||x.t-y.t);
+}
+function wcUserMatch(W){
+ if(W.phase==='group')return W.gm[W.md].find(m=>!m.done&&(m.a===W.user||m.b===W.user))||null;
+ if(W.phase==='ko')return W.ko.rounds[W.ko.round].find(m=>!m.done&&(m.a===W.user||m.b===W.user))||null;
+ return null;
+}
+function wcSimMatch(W,m,ko){
+ const r=simResult(WF,m.a,m.b,rngOf((W.seed+(W.simN=(W.simN||0)+1)*7919)>>>0),ko);
+ m.ga=r.ga;m.gb=r.gb;m.done=true;if(ko){m.w=r.w;m.ot=r.ot;m.pen=r.pen}
+}
+function wcBuildKO(W){
+ const all=W.groups.map((g,gi)=>wcTable(W,gi)),cmp=(x,y)=>y.pts-x.pts||(y.gf-y.ga)-(x.gf-x.ga)||y.gf-x.gf||x.t-y.t;
+ const win=all.map(t=>t[0]).sort(cmp),run=all.map(t=>t[1]).sort(cmp),thi=all.map(t=>t[2]).sort(cmp).slice(0,8);
+ const seeds=win.concat(run,thi).map(r=>r.t);W.q=seeds.slice();
+ let ord=[1];while(ord.length<32){const m=ord.length*2+1;ord=ord.flatMap(x=>[x,m-x])}
+ const gOf=t=>W.groups.findIndex(g=>g.includes(t));
+ const pr=[];for(let i=0;i<32;i+=2)pr.push([seeds[ord[i]-1],seeds[ord[i+1]-1]]);
+ for(let i=0;i<pr.length;i++)if(gOf(pr[i][0])===gOf(pr[i][1])){const j=(i+1)%pr.length;[pr[i][1],pr[j][1]]=[pr[j][1],pr[i][1]]}
+ W.ko={round:0,rounds:[pr.map(([a,b])=>({a,b,ga:null,gb:null,done:false,w:null})),[],[],[],[]]};
+ W.phase='ko';
+ if(!seeds.includes(W.user))W.out='Group stage';
+}
+/* sim whatever is left of the current stage, then move on */
+function wcStep(W){
+ if(W.phase==='group'){
+  for(const m of W.gm[W.md])if(!m.done)wcSimMatch(W,m,false);
+  W.md++;if(W.md>=3)wcBuildKO(W);
+ }else if(W.phase==='ko'){
+  const cur=W.ko.rounds[W.ko.round];
+  for(const m of cur)if(!m.done)wcSimMatch(W,m,true);
+  const um=cur.find(m=>m.a===W.user||m.b===W.user);
+  if(um&&um.w!==W.user&&!W.out)W.out=WC_R[W.ko.round];
+  if(W.ko.round===4){W.champ=cur[0].w;W.phase='done';return}
+  const nx=[];for(let i=0;i<cur.length;i+=2)nx.push({a:cur[i].w,b:cur[i+1].w,ga:null,gb:null,done:false,w:null});
+  W.ko.round++;W.ko.rounds[W.ko.round]=nx;
+ }
+}
+function wcStatus(W){
+ if(W.phase==='done')return W.champ===W.user?'Champions!':(W.out?'out · '+W.out:'finished');
+ if(W.out)return'out · '+W.out;
+ return W.phase==='group'?'Group stage · matchday '+(W.md+1):WC_R[W.ko.round];
+}
+function wcRecord(W,gu,go,w,extra){
+ const m=wcUserMatch(W);if(!m)return;
+ const ko=W.phase==='ko',u=W.user===m.a;
+ m.ga=u?gu:go;m.gb=u?go:gu;m.done=true;
+ if(ko){m.w=w===0?W.user:w===1?(u?m.b:m.a):(u?(gu>=go?m.a:m.b):(go>=gu?m.a:m.b));m.ot=!!extra.ot;m.pen=!!extra.pen}
+ const o=u?m.b:m.a,label=W.phase==='group'?'Group '+WC_GL[m.g]+' · MD'+(W.md+1):WC_R[W.ko.round];
+ const res=label+' vs '+TEAMS[o].short+': '+(w===0?'win':w===1?'loss':'draw')+' '+gu+'-'+go+(extra.pen?' (penalties)':extra.ot?' (extra time)':'');
+ const hadOut=!!W.out;wcStep(W);wcSave();
+ let tail='';
+ if(W.champ===W.user)tail=' · 🏆 WORLD CHAMPIONS!';
+ else if(!hadOut&&W.out)tail=' · eliminated';
+ return res+tail;
+}
+function wcHub(){
+ const W=WC,t=TEAMS[W.user];
+ const head='<div class="hubhead">'+kdot(t).replace('16px','30px').replace('16px','30px')+'<div><div class="nm">'+esc(t.name)+'</div><div class="sub">World Cup · '+wcStatus(W)+'</div></div></div>';
+ const tabs=[['home','Home'],['groups','Groups'],['bracket','Knockout bracket']];
+ const tb='<div class="tabs" role="tablist">'+tabs.map(x=>'<button type="button" data-a="wtab" data-v="'+x[0]+'" aria-pressed="'+(wcTab===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
+ const msg=WCMSG?'<div class="msg" role="status">'+esc(WCMSG)+'</div>':'';
+ const body={home:wcHome,groups:wcGroups,bracket:wcBracket}[wcTab](W);
+ const foot='<p class="note" style="margin-top:22px"><button type="button" class="sbtn'+(WCCONF?' warn':'')+'" data-a="wreset">'+(WCCONF?'Click again to erase this tournament':'New World Cup')+'</button></p>';
+ return head+tb+msg+body+foot;
+}
+function wcGroupTable(W,gi,compact){
+ const rows=wcTable(W,gi);
+ return'<table class="gt"><thead><tr><th>'+'Group '+WC_GL[gi]+'</th><th>P</th><th>GD</th><th>Pts</th></tr></thead><tbody>'+rows.map((r,i)=>{
+  const q=W.phase!=='group'&&W.q?(W.q.includes(r.t)?(i<2?' q':' q3'):''):(W.md>0&&i<2?' q':'');
+  return'<tr class="'+q.trim()+(r.t===W.user?' me':'')+'"><td class="t">'+kdot(TEAMS[r.t])+' '+esc(compact?TEAMS[r.t].short:TEAMS[r.t].name)+'</td><td>'+r.p+'</td><td>'+(r.gf-r.ga>0?'+':'')+(r.gf-r.ga)+'</td><td><b>'+r.pts+'</b></td></tr>'}).join('')+'</tbody></table>';
+}
+function wcHome(W){
+ let h='';const um=wcUserMatch(W);
+ if(W.phase==='done'){
+  h+='<div class="card"><h3>Tournament complete</h3><p style="margin:0 0 8px;font-size:20px;font-weight:700">'+(W.champ===W.user?'🏆 You are the World Champions!':'🏆 '+esc(TEAMS[W.champ].name)+' won the World Cup')+'</p><p style="margin:0 0 14px">'+(W.champ===W.user?'A perfect run.':'Your run ended: '+esc(W.out||'finished')+'.')+'</p><button type="button" class="go" style="max-width:340px" data-a="wreset">Start a new World Cup</button></div>';
+ }else if(um){
+  const oi=um.a===W.user?um.b:um.a,o=TEAMS[oi],q=teamRatings(oi,DEFAULT_ROSTERS),m=teamRatings(W.user,DEFAULT_ROSTERS);
+  const ttl=W.phase==='group'?'Group '+WC_GL[um.g]+' · Matchday '+(W.md+1)+' of 3':WC_R[W.ko.round]+' · knockout, no draws';
+  h+='<div class="card"><h3>'+ttl+'</h3><div class="vs"><div class="t">'+kdot(TEAMS[W.user])+esc(TEAMS[W.user].short)+'</div><span>vs</span><div class="t">'+kdot(o)+esc(o.name)+'</div></div>'+
+   '<div class="stats" style="max-width:420px;margin:0 0 14px"><span>You OVR</span><i style="--v:'+rbar(m.ovr)+';--tc:'+TEAMS[W.user].ui+'"></i><span>'+esc(o.short)+' OVR</span><i style="--v:'+rbar(q.ovr)+';--tc:'+o.ui+'"></i></div>'+
+   '<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="go" style="width:auto" data-a="wplay">Play match</button><button type="button" class="btn" data-a="wsim">Simulate it</button></div></div>';
+ }else{
+  h+='<div class="card"><h3>You are out</h3><p style="margin:0 0 12px">Your World Cup ended in the '+esc(W.out||'group stage')+'. Simulate the rest to see who wins it.</p><button type="button" class="go" style="max-width:340px" data-a="wsimrest">Simulate the rest of the tournament</button></div>';
+ }
+ if(W.phase==='group'){const gi=(wcUserMatch(W)||{}).g;const g=gi!=null?gi:W.groups.findIndex(x=>x.includes(W.user));h+='<div class="card">'+wcGroupTable(W,g,false)+'<p class="note" style="margin:6px 0 0">Top two advance, plus the 8 best third-placed teams.</p></div>'}
+ else if(W.phase==='ko'&&wcUserMatch(W)){h+='<p class="note">Single elimination — extra time and penalties if it is level. See the full bracket in the Knockout bracket tab.</p>'}
+ return h;
+}
+function wcGroups(W){return'<div class="wcg">'+W.groups.map((g,gi)=>'<div class="card">'+wcGroupTable(W,gi,true)+'</div>').join('')+'</div><p class="note">Green: group winners and runners-up. Yellow: best third-placed teams that go through.</p>'}
+function wcBracket(W){
+ if(!W.ko)return'<div class="card"><h3>Knockout bracket</h3><p style="margin:0">After the group stage, the 12 group winners, 12 runners-up and the 8 best third-placed teams (32 in all) enter a single-elimination bracket: Round of 32, Round of 16, quarter-finals, semi-finals and the final.</p></div>';
+ const seedOf=t=>{const i=(W.q||[]).indexOf(t);return i<0?'':i+1};
+ const row=(m,t,k)=>{
+  if(t==null)return'<div class="br tbd"><span>TBD</span></div>';
+  const sc=m.done?(k?m.gb:m.ga):'',win=m.done&&m.w===t,lose=m.done&&m.w!==t;
+  return'<div class="br'+(win?' win':'')+(lose?' lose':'')+(t===W.user?' me':'')+'"><span class="sd">'+seedOf(t)+'</span>'+kdot(TEAMS[t])+'<span class="nm">'+esc(TEAMS[t].short)+'</span><b>'+sc+'</b></div>';
+ };
+ let g='';const cols=[1,3,5,7,9];
+ WC_R.forEach((nm,r)=>g+='<div class="bh" style="grid-column:'+cols[r]+';grid-row:1">'+nm+'</div>');
+ for(let r=0;r<5;r++){
+  const n=16>>r,span=2<<r,ms=W.ko.rounds[r]||[];
+  for(let i=0;i<n;i++){
+   const m=ms[i]||{a:null,b:null,done:false},mine=m.a===W.user||m.b===W.user;
+   g+='<div class="bx'+(mine?' mine':'')+'" style="grid-column:'+cols[r]+';grid-row:'+(2+i*span)+'/'+(2+(i+1)*span)+'">'+row(m,m.a,0)+row(m,m.b,1)+(m.done&&(m.ot||m.pen)?'<div class="bnote">'+(m.pen?'penalties':'extra time')+'</div>':'')+'</div>';
+  }
+  if(r<4)for(let j=0;j<n/2;j++)g+='<div class="cn L" style="grid-column:'+(cols[r]+1)+';grid-row:'+(2+j*2*span)+'/'+(2+(j+1)*2*span)+'"></div>';
+ }
+ const champ=W.champ!=null?'<div class="champ">🏆 '+esc(TEAMS[W.champ].name)+(W.champ===W.user?' — that is you!':'')+'</div>':'';
+ return'<div class="card tw"><h3>Knockout bracket</h3>'+champ+'<div class="wcbr">'+g+'</div></div>';
+}
+function renderWc(){const root=$('#wcRoot');root.innerHTML=WC&&WC.groups?wcHub():wcSetup()}
+function wcSetup(){
+ const wcTeam=(k)=>teamCard(NCLUB+k,NCLUB+k===WS.user,'data-a="wpick" data-v="'+(NCLUB+k)+'"',DEFAULT_ROSTERS);
+ let grid='';
+ for(let gi=0;gi<12;gi++){
+  grid+='<h2 style="grid-column:1/-1;margin:10px 0 0">Group '+WC_GL[gi]+'</h2><div style="grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px">';
+  NATS_RAW.forEach((r,k)=>{if(r[5]===WC_GL[gi])grid+=wcTeam(k)});
+  grid+='</div>';
+ }
+ return'<div class="cols"><section><h2>Choose your nation</h2><div class="grid">'+grid+'</div></section>'+
+  '<aside class="side"><div class="card"><h3>World Cup</h3><p style="margin:0">The 48 nations of the 2026 World Cup in their real groups. Play your 3 group matches, then the top two of every group plus the 8 best third-placed teams enter a 32-team knockout: win five straight matches to lift the trophy.</p></div>'+
+  '<div><h2>Difficulty</h2>'+segHtml('wdiff',WS.diff,DIFFS)+'</div><div><h2>Match length</h2>'+segHtml('wlen',WS.len,LENS)+'</div>'+
+  '<button type="button" class="go" data-a="wstart">Start the World Cup</button></aside></div>';
+}
+function wcAction(el){
+ const a=el.dataset.a,v=el.dataset.v;
+ if(a==='wpick'){WS.user=+v;accent(WS.user);return renderWc()}
+ if(a==='wdiff'){WS.diff=v;return renderWc()}
+ if(a==='wlen'){WS.len=+v;return renderWc()}
+ if(a==='wstart'){WC=wcNew(WS.user,WS.diff,WS.len);wcTab='home';WCMSG='';WCCONF=false;wcSave();return renderMode()}
+ const W=WC;if(!W)return;
+ if(a!=='wreset')WCCONF=false;
+ if(a==='wtab'){wcTab=v;WCMSG='';return renderWc()}
+ if(a==='wreset'){if(WCCONF){WC=null;WCCONF=false;WCMSG='';wcSave();return renderMode()}WCCONF=true;return renderWc()}
+ if(a==='wplay'){
+  const m=wcUserMatch(W);if(!m)return;const oi=m.a===W.user?m.b:m.a,ko=W.phase==='ko';WCMSG='';
+  return launchMatch({user:W.user,opp:oi,diff:W.diff,len:W.len,rosters:DEFAULT_ROSTERS,needWinner:ko,title:ko?WC_R[W.ko.round]:'Group '+WC_GL[m.g]+' · Matchday '+(W.md+1),fr:true,wc:true,
+   onEnd:r=>wcRecord(W,r.gu,r.go,r.winner,{ot:r.ot,pen:r.pens})});
+ }
+ if(a==='wsim'){
+  const m=wcUserMatch(W);if(!m)return;const ko=W.phase==='ko';
+  wcSimMatch(W,m,ko);const u=m.a===W.user,gu=u?m.ga:m.gb,go=u?m.gb:m.ga;
+  const w=ko?(m.w===W.user?0:1):(gu>go?0:gu<go?1:-1),o=u?m.b:m.a,label=W.phase==='group'?'Group '+WC_GL[m.g]+' · MD'+(W.md+1):WC_R[W.ko.round];
+  const hadOut=!!W.out;
+  wcStep(W);wcSave();
+  WCMSG=label+' vs '+TEAMS[o].short+': '+(w===0?'win':w===1?'loss':'draw')+' '+gu+'-'+go+(m.pen?' (penalties)':m.ot?' (extra time)':'')+(W.champ===W.user?' · 🏆 WORLD CHAMPIONS!':!hadOut&&W.out?' · eliminated':'');
+  return renderWc();
+ }
+ if(a==='wsimrest'){for(let i=0;i<10&&W.phase!=='done';i++)wcStep(W);wcSave();WCMSG='Tournament simulated.';return renderWc()}
+}
+function wireWc(){
+ $('#wcRoot').addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&!el.disabled)wcAction(el)});
+}
+
 /* ---------- title screen ---------- */
 function updateTitle(){
  const a=$('#tFranT'),b=$('#tFranS');if(!a)return;
+ const ww=$('#tWcT'),ws=$('#tWcS');if(ww){ww.textContent=WC?'Continue World Cup':'World Cup';ws.textContent=WC?(TEAMS[WC.user].name+' · '+wcStatus(WC)):'48 nations, groups, then knockouts'}
  const rr=$('#tRtgT'),rs=$('#tRtgS');if(rr){rr.textContent=RG?'Continue Road to Glory':'Road to Glory';rs.textContent=RG?(rgPlayer(RG).name+' · '+TEAMS[RG.user].short+' · season '+RG.season):'Pick one player, rise to the top'}
  a.textContent=FR?'Continue franchise':'Franchise';b.textContent=FR?(TEAMS[FR.user].short+' · season '+FR.season):'Season, playoffs, squad';
 }
 function wireTitle(){
  const T=$('#title');if(!T)return;
- const t=TEAMS[Math.floor(Math.random()*TEAMS.length)],pal=['#ff2bd6','#ffe600','#19c8ff','#2fe27a','#ff9a1f','#7a5cff'];
+ const t=TEAMS[Math.floor(Math.random()*NCLUB)],pal=['#ff2bd6','#ffe600','#19c8ff','#2fe27a','#ff9a1f','#7a5cff'];
  T.style.setProperty('--c',t.c);T.style.setProperty('--c2',t.c2);
  if(Math.abs(colorDist(t.c,'#0a0f24'))<90)T.style.setProperty('--c','#ff2bd6');
  for(let i=0;i<42;i++){const s=document.createElement('span');s.className='cf';s.style.left=(Math.random()*100)+'%';s.style.background=pal[i%pal.length];s.style.animationDuration=(3+Math.random()*3.5)+'s';s.style.animationDelay=(-Math.random()*6)+'s';T.appendChild(s)}
  const go=m=>{MODE=m;T.hidden=true;$('#menu').hidden=false;audio();sfx('intro');renderMode();window.scrollTo(0,0)};
  $('#tQuick').addEventListener('click',()=>go('qm'));
  $('#tFran').addEventListener('click',()=>go('fr'));
- $('#tRtg').addEventListener('click',()=>go('rg'));
- $('#btnBack').addEventListener('click',()=>{updateTitle();$('#menu').hidden=true;T.hidden=false;$('#tQuick').disabled=false;$('#tFran').disabled=false;$('#tRtg').disabled=false;if($('#tOnline'))$('#tOnline').disabled=false;window.scrollTo(0,0)});
- setTimeout(()=>{$('#tQuick').disabled=false;$('#tFran').disabled=false;$('#tRtg').disabled=false;if($('#tOnline'))$('#tOnline').disabled=false;$('#tQuick').focus()},1500);
+ $('#tRtg').addEventListener('click',()=>go('rg'));$('#tWc').addEventListener('click',()=>go('wc'));
+ $('#btnBack').addEventListener('click',()=>{updateTitle();$('#menu').hidden=true;T.hidden=false;$('#tQuick').disabled=false;$('#tFran').disabled=false;$('#tRtg').disabled=false;$('#tWc').disabled=false;if($('#tOnline'))$('#tOnline').disabled=false;window.scrollTo(0,0)});
+ setTimeout(()=>{$('#tQuick').disabled=false;$('#tFran').disabled=false;$('#tRtg').disabled=false;$('#tWc').disabled=false;if($('#tOnline'))$('#tOnline').disabled=false;$('#tQuick').focus()},1500);
 }
 
 /* ---------- online play: rooms, host/guest sync ---------- */
@@ -3004,7 +3224,7 @@ async function olLeaveRoom(){
 async function olBackToTitle(){
  await olLeaveRoom();
  $('#online').hidden=true;$('#title').hidden=false;
- $('#tQuick').disabled=false;$('#tFran').disabled=false;$('#tRtg').disabled=false;
+ $('#tQuick').disabled=false;$('#tFran').disabled=false;$('#tRtg').disabled=false;$('#tWc').disabled=false;
  if($('#tOnline'))$('#tOnline').disabled=false;
  window.scrollTo(0,0);
 }
@@ -3129,7 +3349,7 @@ function olPeers(){
   let g=guests.find(p=>p.peer===OL.gpeer)||null;
   if(!g&&guests.length){g=guests[0];OL.gpeer=g.peer;ROOM.presence({g:g.peer})}
   if(!g&&OL.gpeer){OL.gpeer=null;ROOM.presence({g:null})}
-  if(g){OL.sawGuest=true;OL.guestTeam=clamp(+((g.presence||{}).team)||0,0,TEAMS.length-1)}
+  if(g){OL.sawGuest=true;OL.guestTeam=clamp(+((g.presence||{}).team)||0,0,NCLUB-1)}
   if(OL.inMatch){
    if(!g){olMatchEnded('Your opponent left the room.');return}
    if((g.presence||{}).inm===0&&OL.guestIn){olMatchEnded('Your opponent left the match.');return}
@@ -3142,7 +3362,7 @@ function olPeers(){
    if(pr.g&&pr.g!==(peersOf().me&&peersOf().me.peer)&&OL.phase!=='full'&&!OL.inMatch){
     olLeaveRoom().then(()=>{OL.phase='choose';OL.msg='That room already has two players.';olRender()});return;
    }
-   OL.hostTeam=clamp(+pr.team||0,0,TEAMS.length-1);OL.len=pr.len||120;
+   OL.hostTeam=clamp(+pr.team||0,0,NCLUB-1);OL.len=pr.len||120;
    if(OL.phase==='joining'){OL.phase='lobby';olRender()}
    if(OL.inMatch){
     if(!pr.mid){olMatchEnded('The host left the match.');return}
@@ -3174,7 +3394,7 @@ function olBackToLobby(){   // from a finished/quit match
 }
 
 /* ---- lobby UI ---- */
-function teamOpts(sel0){return TEAMS.map((t,i)=>'<option value="'+i+'"'+(i===sel0?' selected':'')+'>'+esc(t.name)+'</option>').join('')}
+function teamOpts(sel0){return TEAMS.slice(0,NCLUB).map((t,i)=>'<option value="'+i+'"'+(i===sel0?' selected':'')+'>'+esc(t.name)+'</option>').join('')}
 function olRenderSoft(){
  // update status bits without rebuilding inputs
  const st=$('#olStat');if(!st)return;
