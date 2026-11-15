@@ -502,7 +502,7 @@ function renderHints(){
   +'<li><span class="k">'+kb('lob')+'</span> lob pass over defenders</li><li><span class="k">'+kb('thr')+'</span> through ball into space</li>'
   +'<li><span class="k">'+kb('shoot')+'</span> shoot, hold to charge. Near goal, time the moving aim line</li>'
   +'<li><span class="k">'+kb('sprint')+'</span> sprint (uses stamina)</li>'
-  +'<li><span class="k">'+kb('sw')+'</span> switch player (you only switch when you press it)</li>'
+  +'<li><span class="k">'+kb('sw')+'</span> switch player on defence (offence follows the ball)</li>'
   +'<li><span class="k">'+kb('pause')+'</span> pause · change any key in Settings</li>';
 }
 
@@ -1146,12 +1146,14 @@ function updateCtrl(dt){
  if(G.demo)return;
  G.lock=Math.max(0,G.lock-dt);
  const b=G.ball,cur=G.ctrl;
- if(!(S.auto&&!G.online)){
+ /* offence: always follow the ball carrier / pass receiver */
+ if(b.owner&&b.owner.team===HT&&!b.owner.isGK){if(cur!==b.owner)setCtrl(b.owner);return}
+ if(!b.owner&&b.passTarget&&b.passT>0&&b.passTarget.team===HT&&!b.passTarget.isGK){if(cur!==b.passTarget)setCtrl(b.passTarget);return}
+ /* defence / loose ball: manual only (unless the full auto-switch option is on) */
+ if(!S.auto){
   if(!cur){let best=null,bd=1e9;for(const p of G.players)if(p.team===HT&&!p.isGK){const d=dist(p,b);if(d<bd){bd=d;best=p}}if(best)setCtrl(best)}
   return;
  }
- if(b.owner&&b.owner.team===HT&&!b.owner.isGK){if(cur!==b.owner)setCtrl(b.owner);return}
- if(!b.owner&&b.passTarget&&b.passT>0&&b.passTarget.team===HT&&!b.passTarget.isGK){if(cur!==b.passTarget)setCtrl(b.passTarget);return}
  if(G.lock>0&&cur)return;
  let best=null,bd=1e9;
  for(const p of G.players)if(p.team===HT&&!p.isGK){const d=dist(p,b);if(d<bd){bd=d;best=p}}
@@ -1232,7 +1234,7 @@ function humanControl(p,dt){
   act[key]=0;
   if(t){
    if(kind==='pass')launchGround(p,t);else if(kind==='lob')launchLob(p,t);else launchThrough(p,t);
-   if(S.auto&&!G.online){setCtrl(t);G.lock=.9}else G.lock=.4;
+   setCtrl(t);G.lock=.9;
   }else{
    if(kind==='lob')launchLobTo(p,p.x+ax*320,p.y+ay*320);else launchGroundTo(p,p.x+ax*260,p.y+ay*260);
    G.lock=.4;
@@ -2331,7 +2333,7 @@ function renderSettings(){
  h+='<h3>Sound</h3>'+tgl('all',S.all,'Sound','Master switch for everything')+sld('master',S.master,'Master volume')
   +tgl('fx',S.fx,'Sound effects','Passes, shots, tackles, whistle')+sld('fxV',S.fxV,'Effects volume')
   +tgl('crowd',S.crowd,'Crowd','Cheering and stadium noise')+sld('crowdV',S.crowdV,'Crowd volume');
- h+='<h3>Gameplay &amp; display</h3>'+tgl('auto',S.auto,'Auto-switch player','Off: you keep your player until you press '+K1('sw')+'. Local matches only; online is always manual.')
+ h+='<h3>Gameplay &amp; display</h3>'+tgl('auto',S.auto,'Auto-switch on defence too','Off: on defence you keep your player until you press '+K1('sw')+'. You always follow the ball on offence.')
   +tgl('labels',S.labels,'Show every player’s name','Off: only your controlled player has a name')
   +tgl('shake',S.shake,'Screen shake','On big shots and tackles')
   +tgl('blurPause',S.blurPause,'Pause when you leave the tab','Local matches only')
