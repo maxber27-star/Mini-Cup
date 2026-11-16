@@ -1051,7 +1051,7 @@ function doShoot(p,power,tx,ty,errMul){
  const err=(.03+.06*power)*(errMul||1)*(p.mAcc||1),g=(Math.random()+Math.random()+Math.random()-1.5)/1.5;
  a+=g*err*2;
  if(p.rt&&Math.random()<Math.max(0,3.6-p.rt)*.09)a+=(Math.random()<.5?-1:1)*rnd(.09,.2);
- kickBall(p,Math.cos(a),Math.sin(a),(520+420*power)*(p.mShot||1),0,null,0,power);
+ kickBall(p,Math.cos(a),Math.sin(a),(520+420*power)*(p.mShot||1),230+100*power,null,0,power);
  if(p.ctrl)G.ball.ghost=0;
  G.shake=Math.max(G.shake,power*5);G.stats.shots[p.team]++;
 }
@@ -4073,7 +4073,7 @@ function netSendInput(now){
  ROOM.presence({i:Object.assign({},inp)}).catch(()=>{});
 }
 
-window.__striker={get UT(){return UT},DEFAULT_ROSTERS,TEAMS,teamRatings,startCelebration,G,update,startMatch,press,release,draw,launchMatch,sel,resize,get FR(){return FR},set FR(v){FR=v},get MODE(){return MODE},set MODE(v){MODE=v},renderMode,frAction,finishUser,save,sfx,startRestart,startSlide,OL,get NET(){return NET},get GUEST(){return GUEST},netSend,netApply,guestTick,launchOnline,olConnect,mkCtx,callFoul,goal,get AC(){return AC}};
+window.__striker={doShoot,get UT(){return UT},DEFAULT_ROSTERS,TEAMS,teamRatings,startCelebration,G,update,startMatch,press,release,draw,launchMatch,sel,resize,get FR(){return FR},set FR(v){FR=v},get MODE(){return MODE},set MODE(v){MODE=v},renderMode,frAction,finishUser,save,sfx,startRestart,startSlide,OL,get NET(){return NET},get GUEST(){return GUEST},netSend,netApply,guestTick,launchOnline,olConnect,mkCtx,callFoul,goal,get AC(){return AC}};
 init();
 
 
