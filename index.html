@@ -246,6 +246,7 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
 .setbtn:hover{filter:brightness(1.1)}
 #setTop{position:fixed;top:12px;right:12px;z-index:50}
 #menu{padding-top:46px}
+.team-stars{margin-top:8px;font-size:12px;font-weight:700;color:#ffe600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tbtn.w{background:linear-gradient(135deg,#2fe27a,#19c8ff);color:#06122a}
 .wcg{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .wcg .card{padding:10px 12px}.wcg h3{margin:0 0 6px!important}
@@ -566,12 +567,83 @@ const STAR_R={
  'Thibaut Courtois':4.5,'Alisson Becker':4.5,'Alisson':4.5,'Florian Wirtz':4.5,'Jamal Musiala':4.5,'Bukayo Saka':4.5,'Declan Rice':4.5,'Federico Valverde':4.5,'Phil Foden':4.5,'Raphinha':4.5,'Cristiano Ronaldo':4.5,'Virgil van Dijk':4.5,'Kevin De Bruyne':4.5,'Martin Ødegaard':4.5,'Joshua Kimmich':4.5,'Bruno Fernandes':4.5,'Son Heung-min':4.5,'Lautaro Martínez':4.5,'Julián Álvarez':4.5,'Luis Díaz':4.5,'Antoine Griezmann':4.5,'Robert Lewandowski':4.5,'Rúben Dias':4.5,'William Saliba':4.5,'Achraf Hakimi':4.5,'Nuno Mendes':4.5,'Vitinha':4.5,'João Neves':4.5,'Marquinhos':4.5,'Gabriel Magalhães':4.5,'Luka Modrić':4.5,'Rafael Leão':4.5,'Alexander Isak':4.5,'Viktor Gyökeres':4.5,'Gianluigi Donnarumma':4.5,'Mike Maignan':4.5,'Unai Simon':4.5,'Emiliano Martínez':4.5,'Cole Palmer':4.5,'Enzo Fernández':4.5,'Alexis Mac Allister':4.5,'Cristian Romero':4.5,'Joško Gvardiol':4.5,'Pedri':4.5,'Moisés Caicedo':4.5,'Nico Williams':4.5,'Kenan Yıldız':4.5,'Michael Olise':4.5,'Jules Koundé':4.5,'Federico Valverde ':4.5,'Bernardo Silva':4.5,'Frenkie de Jong':4.5,'Aurélien Tchouaméni':4.5,'Trent Alexander-Arnold':4.5,'Granit Xhaka':4,'Jan Oblak':4.5,'Manuel Neuer':4,'Gregor Kobel':4,'Yann Sommer':4,'Diogo Costa':4.5,'Yassine Bounou':4.5,'Sadio Mané':4,'Christian Pulisic':4,'Alphonso Davies':4,'Jonathan David':4,'Hakan Çalhanoğlu':4,'Arda Güler':4,'Jordan Pickford':4.5,'Luis Suárez':4,'Mehdi Taremi':4,'Victor Lindelöf':3.5
 };
 function pretty(n){return n}
+const REAL_OVR={
+BAR:'GK:Joan Garcia 80,Wojciech Szczesny 78|DEF:Jules Kounde 84,Pau Cubarsi 83,Alejandro Balde 82|MID:Pedri 87,Frenkie de Jong 85,Dani Olmo 84|FWD:Lamine Yamal 91,Raphinha 88',
+RMA:'GK:Thibaut Courtois 89,Andriy Lunin 78|DEF:Antonio Rudiger 85,Trent Alexander-Arnold 85,Dean Huijsen 80|MID:Jude Bellingham 90,Federico Valverde 88,Aurelien Tchouameni 84|FWD:Kylian Mbappe 92,Vinicius Junior 90',
+MCI:'GK:Gianluigi Donnarumma 88,James Trafford 75|DEF:Ruben Dias 87,Josko Gvardiol 86,Rayan Ait-Nouri 80|MID:Rodri 91,Bernardo Silva 87,Phil Foden 86|FWD:Erling Haaland 91,Omar Marmoush 83',
+PSG:'GK:Lucas Chevalier 80,Matvey Safonov 78|DEF:Achraf Hakimi 87,Marquinhos 86,Willian Pacho 84|MID:Vitinha 88,Joao Neves 86,Fabian Ruiz 84|FWD:Ousmane Dembele 90,Khvicha Kvaratskhelia 88',
+BAY:'GK:Manuel Neuer 85,Jonas Urbig 75|DEF:Jonathan Tah 85,Dayot Upamecano 84,Alphonso Davies 83|MID:Joshua Kimmich 89,Jamal Musiala 89,Michael Olise 87|FWD:Harry Kane 92,Luis Diaz 86',
+MUN:'GK:Senne Lammens 75,Altay Bayindir 73|DEF:Lisandro Martinez 82,Matthijs de Ligt 80,Diogo Dalot 80|MID:Bruno Fernandes 87,Casemiro 81,Kobbie Mainoo 79|FWD:Matheus Cunha 84,Bryan Mbeumo 83',
+LIV:'GK:Alisson 89,Giorgi Mamardashvili 82|DEF:Virgil van Dijk 88,Ibrahima Konate 85,Milos Kerkez 80|MID:Florian Wirtz 86,Dominik Szoboszlai 85,Alexis Mac Allister 85|FWD:Mohamed Salah 90,Alexander Isak 86',
+ARS:'GK:David Raya 86,Kepa Arrizabalaga 77|DEF:William Saliba 88,Gabriel Magalhaes 87,Ben White 82|MID:Declan Rice 88,Martin Odegaard 88,Martin Zubimendi 85|FWD:Bukayo Saka 89,Viktor Gyokeres 86',
+CHE:'GK:Robert Sanchez 78,Filip Jorgensen 76|DEF:Reece James 84,Levi Colwill 82,Marc Cucurella 82|MID:Cole Palmer 88,Enzo Fernandez 86,Moises Caicedo 85|FWD:Joao Pedro 83,Pedro Neto 82',
+JUV:'GK:Michele Di Gregorio 80,Mattia Perin 76|DEF:Gleison Bremer 85,Pierre Kalulu 80,Federico Gatti 79|MID:Khephren Thuram 82,Teun Koopmeiners 82,Manuel Locatelli 80|FWD:Kenan Yildiz 84,Dusan Vlahovic 82',
+MIL:'GK:Mike Maignan 87,Pietro Terracciano 74|DEF:Fikayo Tomori 82,Strahinja Pavlovic 80,Matteo Gabbia 78|MID:Adrien Rabiot 83,Luka Modric 80,Youssouf Fofana 79|FWD:Rafael Leao 86,Christian Pulisic 83',
+BVB:'GK:Gregor Kobel 86,Alexander Meyer 74|DEF:Nico Schlotterbeck 83,Waldemar Anton 82,Niklas Sule 80|MID:Julian Brandt 82,Felix Nmecha 80,Marcel Sabitzer 80|FWD:Serhou Guirassy 84,Karim Adeyemi 80',
+ATM:'GK:Jan Oblak 87,Juan Musso 78|DEF:Jose Maria Gimenez 83,Marcos Llorente 83,Robin Le Normand 82|MID:Koke 82,Pablo Barrios 80,Johnny Cardoso 79|FWD:Julian Alvarez 86,Antoine Griezmann 85',
+MIA:'GK:Oscar Ustari 72,Rocco Rios Novo 68|DEF:Jordi Alba 76,Tomas Aviles 72,Maximiliano Falcon 72|MID:Rodrigo De Paul 82,Sergio Busquets 78,Telasco Segovia 74|FWD:Lionel Messi 91,Luis Suarez 78',
+LAG:'GK:Novak Micovic 74,Jonathan Bond 70|DEF:Miki Yamane 72,Jalen Neal 70,Eriq Zavaleta 70|MID:Riqui Puig 76,Gabriel Pec 76,Edwin Cerrillo 70|FWD:Joseph Paintsil 74,Dejan Joveljic 72',
+AJA:'GK:Remko Pasveer 74,Jay Gorter 72|DEF:Josip Sutalo 77,Youri Baas 73,Anton Gaaei 72|MID:Kenneth Taylor 76,Davy Klaassen 74,Jordan Henderson 73|FWD:Mika Godts 77,Wout Weghorst 72',
+MEX:'GK:Guillermo Ochoa 78,Luis Malagon 76|DEF:Johan Vasquez 76,Cesar Montes 76,Jesus Gallardo 74|MID:Edson Alvarez 80,Luis Chavez 77,Orbelin Pineda 75|FWD:Santiago Gimenez 80,Raul Jimenez 77',
+RSA:'GK:Ronwen Williams 76,Veli Mothwa 66|DEF:Mothobi Mvala 68,Nkosinathi Sibisi 68,Aubrey Modiba 68|MID:Teboho Mokoena 72,Themba Zwane 70,Sphephelo Sithole 70|FWD:Percy Tau 72,Lyle Foster 72',
+KOR:'GK:Jo Hyeon-woo 72,Kim Seung-gyu 72|DEF:Kim Min-jae 84,Seol Young-woo 72,Lee Ki-hyuk 70|MID:Lee Kang-in 80,Hwang In-beom 76,Paik Seung-ho 72|FWD:Son Heung-min 85,Hwang Hee-chan 77',
+CZE:'GK:Matej Kovar 76,Jindrich Stanek 72|DEF:Vladimir Coufal 76,Tomas Holes 74,Ladislav Krejci 74|MID:Tomas Soucek 79,Lukas Provod 74,Pavel Sulc 72|FWD:Patrik Schick 82,Adam Hlozek 76',
+CAN:'GK:Maxime Crepeau 72,Dayne St. Clair 72|DEF:Alphonso Davies 83,Alistair Johnston 74,Moise Bombito 72|MID:Stephen Eustaquio 76,Ismael Kone 76,Jonathan Osorio 70|FWD:Jonathan David 82,Cyle Larin 74',
+BIH:'GK:Nikola Vasilj 74,Martin Zlomislic 66|DEF:Sead Kolasinac 74,Amar Dedic 74,Tarik Muharemovic 72|MID:Benjamin Tahirovic 72,Amir Hadziahmetovic 72,Armin Gigovic 68|FWD:Edin Dzeko 76,Ermedin Demirovic 76',
+QAT:'GK:Meshaal Barsham 68,Salah Zakaria 62|DEF:Pedro Miguel 68,Boualem Khoukhi 66,Lucas Mendes 66|MID:Hassan Al-Haydos 70,Abdulaziz Hatem 68,Karim Boudiaf 66|FWD:Akram Afif 74,Almoez Ali 72',
+SUI:'GK:Gregor Kobel 86,Yvon Mvogo 70|DEF:Manuel Akanji 84,Ricardo Rodriguez 76,Nico Elvedi 76|MID:Granit Xhaka 83,Remo Freuler 78,Denis Zakaria 78|FWD:Dan Ndoye 78,Breel Embolo 77',
+BRA:'GK:Alisson 89,Ederson 84|DEF:Gabriel Magalhaes 87,Marquinhos 86,Eder Militao 84|MID:Bruno Guimaraes 86,Casemiro 81,Lucas Paqueta 80|FWD:Vinicius Junior 90,Raphinha 88',
+MAR:'GK:Yassine Bounou 85,Munir Mohamedi 72|DEF:Achraf Hakimi 87,Noussair Mazraoui 80,Nayef Aguerd 78|MID:Sofyan Amrabat 78,Azzedine Ounahi 77,Neil El Aynaoui 77|FWD:Brahim Diaz 82,Youssef En-Nesyri 78',
+HAI:'GK:Johny Placide 62,Alexandre Pierre 58|DEF:Carlens Arcus 66,Jean-Kevin Duverne 66,Ricardo Ade 62|MID:Jean-Ricner Bellegarde 70,Danley Jean Jacques 66,Leverton Pierre 60|FWD:Duckens Nazon 68,Frantzdy Pierrot 68',
+SCO:'GK:Angus Gunn 72,Craig Gordon 70|DEF:Andrew Robertson 80,Kieran Tierney 78,Scott McKenna 74|MID:Scott McTominay 85,John McGinn 78,Billy Gilmour 78|FWD:Che Adams 72,Lyndon Dykes 70',
+USA:'GK:Matt Turner 74,Matt Freese 72|DEF:Antonee Robinson 79,Chris Richards 76,Tim Ream 72|MID:Weston McKennie 80,Tyler Adams 78,Yunus Musah 76|FWD:Christian Pulisic 83,Folarin Balogun 77',
+PAR:'GK:Orlando Gill 74,Gatito Fernandez 68|DEF:Gustavo Gomez 80,Omar Alderete 76,Junior Alonso 72|MID:Miguel Almiron 76,Diego Gomez 76,Andres Cubas 72|FWD:Julio Enciso 77,Ramon Sosa 73',
+AUS:'GK:Mathew Ryan 74,Joe Gauci 68|DEF:Harry Souttar 74,Alessandro Circati 72,Kye Rowles 70|MID:Jackson Irvine 74,Aiden O\'Neill 70,Ajdin Hrustic 70|FWD:Nestory Irankunda 70,Mathew Leckie 70',
+TUR:'GK:Ugurcan Cakir 76,Mert Gunok 72|DEF:Merih Demiral 78,Ferdi Kadioglu 78,Zeki Celik 74|MID:Hakan Calhanoglu 85,Arda Guler 84,Orkun Kokcu 79|FWD:Kenan Yildiz 84,Baris Alper Yilmaz 75',
+GER:'GK:Marc-Andre ter Stegen 82,Oliver Baumann 79|DEF:Antonio Rudiger 85,Jonathan Tah 85,Nico Schlotterbeck 83|MID:Joshua Kimmich 89,Jamal Musiala 89,Florian Wirtz 86|FWD:Kai Havertz 84,Leroy Sane 82',
+CUW:'GK:Eloy Room 68,Trevor Doornbusch 62|DEF:Armando Obispo 66,Sherel Floranus 64,Jurien Gaari 62|MID:Juninho Bacuna 68,Leandro Bacuna 66,Jeremy Antonisse 64|FWD:Jurgen Locadia 66,Kenji Gorre 66',
+CIV:'GK:Yahia Fofana 70,Badra Ali Sangare 66|DEF:Evan Ndicka 79,Odilon Kossounou 76,Ghislain Konan 70|MID:Franck Kessie 79,Ibrahim Sangare 79,Seko Fofana 76|FWD:Simon Adingra 76,Sebastien Haller 74',
+ECU:'GK:Hernan Galindez 72,Alexander Dominguez 70|DEF:Willian Pacho 84,Piero Hincapie 82,Pervis Estupinan 80|MID:Moises Caicedo 85,Kendry Paez 74,Alan Franco 72|FWD:Enner Valencia 74,Kevin Rodriguez 70',
+NED:'GK:Bart Verbruggen 78,Mark Flekken 76|DEF:Virgil van Dijk 88,Nathan Ake 82,Denzel Dumfries 82|MID:Frenkie de Jong 85,Ryan Gravenberch 85,Tijjani Reijnders 83|FWD:Cody Gakpo 83,Xavi Simons 82',
+JPN:'GK:Zion Suzuki 76,Daiya Maekawa 70|DEF:Takehiro Tomiyasu 78,Ko Itakura 76,Yukinari Sugawara 76|MID:Takefusa Kubo 82,Kaoru Mitoma 80,Wataru Endo 78|FWD:Ritsu Doan 78,Ayase Ueda 76',
+SWE:'GK:Viktor Johansson 74,Robin Olsen 72|DEF:Victor Lindelof 77,Isak Hien 76,Gabriel Gudmundsson 76|MID:Dejan Kulusevski 82,Lucas Bergvall 78,Jesper Karlstrom 70|FWD:Alexander Isak 86,Viktor Gyokeres 86',
+TUN:'GK:Aymen Dahmen 70,Bechir Ben Said 68|DEF:Montassar Talbi 74,Ali Abdi 72,Yan Valery 72|MID:Ellyes Skhiri 76,Hannibal Mejbri 72,Aissa Laidouni 72|FWD:Hazem Mastouri 72,Elias Achouri 72',
+BEL:'GK:Thibaut Courtois 89,Koen Casteels 77|DEF:Zeno Debast 78,Timothy Castagne 76,Wout Faes 74|MID:Kevin De Bruyne 88,Youri Tielemans 80,Amadou Onana 80|FWD:Romelu Lukaku 82,Jeremy Doku 82',
+EGY:'GK:Mohamed El Shenawy 74,Mostafa Shobeir 70|DEF:Ahmed Hegazi 72,Ramy Rabia 72,Mohamed Hany 70|MID:Mohamed Elneny 74,Mahmoud Trezeguet 74,Emam Ashour 70|FWD:Mohamed Salah 90,Omar Marmoush 84',
+IRN:'GK:Alireza Beiranvand 74,Hossein Hosseini 70|DEF:Milad Mohammadi 72,Ehsan Hajsafi 72,Shojae Khalilzadeh 70|MID:Saeid Ezatolahi 74,Saman Ghoddos 72,Alireza Jahanbakhsh 72|FWD:Mehdi Taremi 80,Sardar Azmoun 76',
+NZL:'GK:Max Crocombe 68,Alex Paulsen 66|DEF:Liberato Cacace 72,Tommy Smith 68,Michael Boxall 66|MID:Joe Bell 70,Marko Stamenic 70,Sarpreet Singh 66|FWD:Chris Wood 76,Kosta Barbarouses 66',
+ESP:'GK:David Raya 86,Unai Simon 83|DEF:Pau Cubarsi 83,Marc Cucurella 82,Robin Le Normand 82|MID:Rodri 91,Pedri 87,Fabian Ruiz 84|FWD:Lamine Yamal 91,Nico Williams 84',
+CPV:'GK:Vozinha 68,Marcio Rosa 62|DEF:Logan Costa 70,Roberto Lopes 68,Steven Moreira 66|MID:Jamiro Monteiro 70,Kenny Rocha Santos 68,Telmo Arcanjo 66|FWD:Ryan Mendes 68,Garry Rodrigues 68',
+KSA:'GK:Mohammed Al-Owais 72,Nawaf Al-Aqidi 66|DEF:Ali Al-Bulayhi 70,Hassan Tambakti 70,Saud Abdulhamid 70|MID:Salem Al-Dawsari 76,Mohamed Kanno 72,Nasser Al-Dawsari 70|FWD:Saleh Al-Shehri 70,Firas Al-Buraikan 70',
+URU:'GK:Sergio Rochet 74,Santiago Mele 70|DEF:Ronald Araujo 84,Jose Maria Gimenez 83,Mathias Olivera 78|MID:Federico Valverde 88,Rodrigo Bentancur 80,Manuel Ugarte 80|FWD:Darwin Nunez 80,Facundo Pellistri 74',
+FRA:'GK:Mike Maignan 87,Lucas Chevalier 80|DEF:William Saliba 88,Dayot Upamecano 84,Theo Hernandez 84|MID:Aurelien Tchouameni 84,Eduardo Camavinga 83,Warren Zaire-Emery 82|FWD:Kylian Mbappe 92,Ousmane Dembele 90',
+SEN:'GK:Edouard Mendy 80,Yehvann Diouf 72|DEF:Kalidou Koulibaly 80,Moussa Niakhate 74,Abdou Diallo 72|MID:Pape Matar Sarr 79,Idrissa Gueye 78,Lamine Camara 76|FWD:Sadio Mane 80,Ismaila Sarr 80',
+NOR:'GK:Orjan Nyland 72,Egil Selvik 68|DEF:Julian Ryerson 76,Leo Ostigard 74,Kristoffer Ajer 74|MID:Martin Odegaard 88,Sander Berge 78,Patrick Berg 74|FWD:Erling Haaland 91,Alexander Sorloth 82',
+IRQ:'GK:Jalal Hassan 68,Fahad Talib 64|DEF:Rebin Sulaka 68,Ali Adnan 68,Merchas Doski 66|MID:Amir Al-Ammari 68,Ibrahim Bayesh 68,Zidane Iqbal 68|FWD:Aymen Hussein 72,Mohanad Ali 70',
+ARG:'GK:Emiliano Martinez 87,Geronimo Rulli 76|DEF:Cristian Romero 85,Lisandro Martinez 82,Nicolas Otamendi 78|MID:Enzo Fernandez 86,Alexis Mac Allister 85,Rodrigo De Paul 82|FWD:Lionel Messi 91,Lautaro Martinez 87',
+ALG:'GK:Anthony Mandrea 72,Luca Zidane 70|DEF:Ramy Bensebaini 76,Aissa Mandi 72,Youcef Atal 72|MID:Ismael Bennacer 78,Houssem Aouar 76,Nabil Bentaleb 70|FWD:Riyad Mahrez 80,Amine Gouiri 78',
+AUT:'GK:Patrick Pentz 72,Heinz Lindner 68|DEF:David Alaba 80,Kevin Danso 76,Philipp Lienhart 74|MID:Marcel Sabitzer 80,Konrad Laimer 80,Christoph Baumgartner 78|FWD:Marko Arnautovic 74,Michael Gregoritsch 72',
+JOR:'GK:Yazeed Abulaila 66,Abdallah Al-Fakhouri 62|DEF:Yazan Al-Arab 66,Abdallah Nasib 64,Ihsan Haddad 64|MID:Nizar Al-Rashdan 66,Mohammad Abu Zrayq 66,Ibrahim Sadeh 62|FWD:Musa Al-Taamari 74,Ali Olwan 68',
+POR:'GK:Diogo Costa 85,Jose Sa 74|DEF:Ruben Dias 87,Nuno Mendes 85,Joao Cancelo 82|MID:Vitinha 88,Bruno Fernandes 87,Bernardo Silva 87|FWD:Cristiano Ronaldo 86,Rafael Leao 86',
+COD:'GK:Lionel Mpasi 68,Timothy Fayulu 64|DEF:Chancel Mbemba 74,Axel Tuanzebe 70,Arthur Masuaku 68|MID:Noah Sadiki 72,Samuel Moutoussamy 70,Charles Pickel 70|FWD:Yoane Wissa 78,Cedric Bakambu 72',
+UZB:'GK:Utkir Yusupov 68,Abduvohid Nematov 66|DEF:Abdukodir Khusanov 76,Rustam Ashurmatov 68,Khojiakbar Alijonov 64|MID:Abbosbek Fayzullaev 70,Jaloliddin Masharipov 68,Otabek Shukurov 66|FWD:Eldor Shomurodov 72,Igor Sergeev 66',
+COL:'GK:Camilo Vargas 74,David Ospina 72|DEF:Davinson Sanchez 76,Daniel Munoz 76,Jhon Lucumi 74|MID:James Rodriguez 78,Richard Rios 76,Jefferson Lerma 74|FWD:Luis Diaz 86,Jhon Cordoba 72',
+ENG:'GK:Jordan Pickford 83,Dean Henderson 78|DEF:Reece James 84,Marc Guehi 83,John Stones 82|MID:Jude Bellingham 90,Declan Rice 88,Phil Foden 86|FWD:Harry Kane 92,Bukayo Saka 89',
+CRO:'GK:Dominik Livakovic 78,Dominik Kotarski 74|DEF:Josko Gvardiol 86,Josip Sutalo 77,Josip Stanisic 76|MID:Luka Modric 82,Mateo Kovacic 82,Marcelo Brozovic 78|FWD:Andrej Kramaric 78,Ante Budimir 76',
+GHA:'GK:Lawrence Ati-Zigi 72,Benjamin Asare 66|DEF:Mohammed Salisu 74,Alexander Djiku 74,Tariq Lamptey 72|MID:Mohammed Kudus 84,Thomas Partey 80,Salis Abdul Samed 72|FWD:Antoine Semenyo 80,Inaki Williams 76',
+PAN:'GK:Orlando Mosquera 70,Luis Mejia 66|DEF:Michael Amir Murillo 74,Fidel Escobar 68,Cesar Blackman 68|MID:Adalberto Carrasquilla 72,Anibal Godoy 70,Jose Luis Rodriguez 70|FWD:Jose Fajardo 70,Cecilio Waterman 68'
+};
+const ovrToR=o=>o>=90?5:o>=86?4.5:o>=82?4:o>=78?3.5:o>=74?3:o>=70?2.5:o>=66?2:1.5;
+const nrm=n=>n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const OVR_BY_NAME={};
+for(const k in REAL_OVR)for(const part of REAL_OVR[k].split('|'))for(const it of part.split(':')[1].split(',')){const m=it.trim().match(/^(.*) (\d+)$/);if(m)OVR_BY_NAME[nrm(m[1])]=+m[2]}
 function genRoster(ti){
  const rng=rngOf(ti*7919+13),T=TEAMS[ti],mean=[0,0,2.7,3.2,3.6,4.1][T.tier],seen={},out=[],real=REAL_RAW[ti]?REAL_RAW[ti].replace(/;/g,',').split(','):null;
  POS_PLAN.forEach((pos,k)=>{
   seen[pos]=(seen[pos]||0);const starter=seen[pos]===0,num=POS_NUMS[pos][seen[pos]];seen[pos]++;
   const fake=genName(rng,NAMES_USED),nm=real&&real[k]?real[k].trim():fake,rt=snap5(mean+(rng()-.5)*1.5+(starter?.25:-.55));
-  out.push({id:'c'+ti+'_'+k,name:nm,pos,r:STAR_R[nm]!=null?Math.max(rt,STAR_R[nm]):rt,num});
+  const ov=OVR_BY_NAME[nrm(nm)];
+  out.push({id:'c'+ti+'_'+k,name:nm,pos,r:ov!=null?ovrToR(ov):(STAR_R[nm]!=null?Math.max(rt,STAR_R[nm]):rt),num});
  });
  return out;
 }
@@ -1794,7 +1866,6 @@ const cutRefund=p=>Math.round(pval(p)*.2);
 const userRoster=F=>F.rosters[F.user];
 const findPl=(ro,id)=>ro.find(p=>p.id===id);
 
-const ovrToR=o=>o>=90?5:o>=86?4.5:o>=82?4:o>=78?3.5:o>=74?3:o>=70?2.5:o>=66?2:1.5;
 /* real free agents for franchise mode: name:position:overall */
 const FA_POOL='Aaron Ramsdale:GK:76,Kepa Arrizabalaga:GK:77,Yann Sommer:GK:78,Alphonse Areola:GK:77,Kyle Walker:DEF:78,Harry Maguire:DEF:79,Ben Chilwell:DEF:75,Benjamin Pavard:DEF:79,Jan Bednarek:DEF:73,Joel Matip:DEF:74,Jonny Evans:DEF:72,Daley Blind:DEF:72,Lucas Digne:DEF:75,Jordan Henderson:MID:73,Mason Mount:MID:76,Conor Gallagher:MID:79,Marco Verratti:MID:76,Ilkay Gundogan:MID:80,Christian Eriksen:MID:77,Thiago Alcantara:MID:74,Jesse Lingard:MID:70,Hakim Ziyech:MID:76,Jamie Vardy:FWD:73,Callum Wilson:FWD:74,Ivan Toney:FWD:79,Dominic Calvert-Lewin:FWD:75,Wilfried Zaha:FWD:73,Danny Welbeck:FWD:73,Timo Werner:FWD:75,Memphis Depay:FWD:78,Jack Grealish:MID:80,Lorenzo Insigne:FWD:74'.split(',').map(s=>{const a=s.split(':');return{name:a[0],pos:a[1],o:+a[2]}});
 
@@ -2613,7 +2684,8 @@ function teamCard(i,pressed,attr,ros){
  const t=TEAMS[i],q=teamRatings(i,ros);
  return'<button type="button" class="team" '+attr+' aria-pressed="'+pressed+'" style="--tc:'+t.ui+';--c:'+t.c+';--c2:'+t.c2+'">'+
   '<div class="team-top"><span class="kit"></span><div><div class="team-name">'+esc(t.name)+'</div><div class="team-tag">'+esc(t.tag)+' · OVR '+q.ovr.toFixed(1)+'</div></div></div>'+
-  '<div class="stats"><span>Attack</span><i style="--v:'+rbar(q.att)+'"></i><span>Defence</span><i style="--v:'+rbar(q.def)+'"></i><span>Keeper</span><i style="--v:'+rbar(q.gk)+'"></i></div></button>';
+  '<div class="stats"><span>Attack</span><i style="--v:'+rbar(q.att)+'"></i><span>Defence</span><i style="--v:'+rbar(q.def)+'"></i><span>Keeper</span><i style="--v:'+rbar(q.gk)+'"></i></div>'+
+  '<div class="team-stars">★ '+((ros&&ros[i]?ros[i]:[]).filter(p=>p.pos!=='GK').sort((a,b)=>b.r-a.r).slice(0,2).map(p=>esc(shortName(p.name))).join(' · '))+'</div></button>';
 }
 function segHtml(act,cur,items){return'<div class="seg">'+items.map(it=>'<button type="button" data-a="'+act+'" data-v="'+it[0]+'" aria-pressed="'+(cur===it[0])+'">'+it[1]+'</button>').join('')+'</div>'}
 const DIFFS=[['easy','Easy'],['normal','Normal'],['hard','Hard']],LENS=[[60,'1 min'],[120,'2 min'],[180,'3 min']];
@@ -2648,13 +2720,13 @@ const LSK='striker.franchise.v1';let DBC=null;
 
 function realizeSave(F){
  try{
-  if(!F||F.realNames||!F.rosters)return;
+  if(!F||F.realNames>=2||!F.rosters)return;
   F.rosters.forEach(ro=>ro.forEach(p=>{
    const m=/^c(\d+)_(\d+)$/.exec(p.id||'');if(!m)return;
    const t=+m[1],k=+m[2],d=DEFAULT_ROSTERS[t]&&DEFAULT_ROSTERS[t][k];
    if(d&&REAL_RAW[t])p.name=d.name;
   }));
-  F.realNames=1;
+  F.realNames=2;
  }catch(e){}
 }
 async function loadSave(){
@@ -3058,10 +3130,10 @@ function wcRecord(W,gu,go,w,extra){
 function wcHub(){
  const W=WC,t=TEAMS[W.user];
  const head='<div class="hubhead">'+kdot(t).replace('16px','30px').replace('16px','30px')+'<div><div class="nm">'+esc(t.name)+'</div><div class="sub">World Cup · '+wcStatus(W)+'</div></div></div>';
- const tabs=[['home','Home'],['groups','Groups'],['bracket','Knockout bracket']];
+ const tabs=[['home','Home'],['squad','Squad'],['groups','Groups'],['bracket','Knockout bracket']];
  const tb='<div class="tabs" role="tablist">'+tabs.map(x=>'<button type="button" data-a="wtab" data-v="'+x[0]+'" aria-pressed="'+(wcTab===x[0])+'">'+x[1]+'</button>').join('')+'</div>';
  const msg=WCMSG?'<div class="msg" role="status">'+esc(WCMSG)+'</div>':'';
- const body={home:wcHome,groups:wcGroups,bracket:wcBracket}[wcTab](W);
+ const body={home:wcHome,squad:wcSquad,groups:wcGroups,bracket:wcBracket}[wcTab](W);
  const foot='<p class="note" style="margin-top:22px"><button type="button" class="sbtn'+(WCCONF?' warn':'')+'" data-a="wreset">'+(WCCONF?'Click again to erase this tournament':'New World Cup')+'</button></p>';
  return head+tb+msg+body+foot;
 }
@@ -3087,6 +3159,10 @@ function wcHome(W){
  if(W.phase==='group'){const gi=(wcUserMatch(W)||{}).g;const g=gi!=null?gi:W.groups.findIndex(x=>x.includes(W.user));h+='<div class="card">'+wcGroupTable(W,g,false)+'<p class="note" style="margin:6px 0 0">Top two advance, plus the 8 best third-placed teams.</p></div>'}
  else if(W.phase==='ko'&&wcUserMatch(W)){h+='<p class="note">Single elimination — extra time and penalties if it is level. See the full bracket in the Knockout bracket tab.</p>'}
  return h;
+}
+function wcSquad(W){
+ const ro=DEFAULT_ROSTERS[W.user].slice().sort((a,b)=>({GK:0,DEF:1,MID:2,FWD:3}[a.pos]-{GK:0,DEF:1,MID:2,FWD:3}[b.pos])||b.r-a.r),st=new Set(startersFrom(DEFAULT_ROSTERS[W.user]).map(p=>p.id));
+ return'<div class="card"><h3>'+esc(TEAMS[W.user].name)+' squad</h3><table class="gt"><thead><tr><th>Player</th><th>Pos</th><th>Rating</th><th></th></tr></thead><tbody>'+ro.map(p=>'<tr><td class="t">'+(p.num?'<span style="color:var(--mute)">'+p.num+'</span> ':'')+esc(p.name)+'</td><td>'+p.pos+'</td><td>'+stars(p.r)+' <span class="rt">'+p.r.toFixed(1)+'</span></td><td>'+(st.has(p.id)?'Starts':'Bench')+'</td></tr>').join('')+'</tbody></table></div>';
 }
 function wcGroups(W){return'<div class="wcg">'+W.groups.map((g,gi)=>'<div class="card">'+wcGroupTable(W,gi,true)+'</div>').join('')+'</div><p class="note">Green: group winners and runners-up. Yellow: best third-placed teams that go through.</p>'}
 function wcBracket(W){
