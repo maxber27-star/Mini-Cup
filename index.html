@@ -484,17 +484,94 @@ const POS_PLAN=['GK','GK','DEF','DEF','DEF','MID','MID','MID','FWD','FWD'];
 const POS_NUMS={GK:[1,13],DEF:[2,3,5],MID:[6,8,10],FWD:[9,11]};
 function rngOf(seed){let s=(seed>>>0)||1;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296}}
 const snap5=v=>Math.round(Math.max(1.5,Math.min(5,v))*2)/2;
-function shortName(n){const p=n.split(' ');const s=p.slice(1).join(' ');const t=p[0][0]+'. '+s;return t.length>13?t.slice(0,12)+'.':t}
+function lastName(n){const p=n.split(' ');if(p.length===1)return n;const sur=p.slice(1).join(' ');return sur.length>11?p[p.length-1]:sur}
+function shortName(n){const p=n.split(' ');if(p.length===1)return n.length>13?n.slice(0,12)+'.':n;const s=p.slice(1).join(' ');const t=p[0][0]+'. '+s;return t.length>13?t.slice(0,12)+'.':t}
 function genName(rng,used){
  for(let k=0;k<40;k++){const n=FIRST[Math.floor(rng()*FIRST.length)]+' '+LAST[Math.floor(rng()*LAST.length)];if(!used.has(n)){used.add(n);return n}}
  return FIRST[0]+' '+LAST[Math.floor(rng()*LAST.length)]+' Jr';
 }
 const NAMES_USED=new Set();
+
+/* real players (squads as of roughly 2025-26; ratings are the game's own). Order: GK, GK, DEF x3, MID x3, FWD x2 */
+const REAL_RAW=[
+/* clubs, in CLUBS_RAW order */
+'Joan Garcia,Wojciech Szczesny;Pau Cubarsí,Jules Koundé,Alejandro Balde;Pedri,Frenkie de Jong,Gavi;Lamine Yamal,Robert Lewandowski',
+'Thibaut Courtois,Andriy Lunin;Antonio Rüdiger,Dean Huijsen,Trent Alexander-Arnold;Jude Bellingham,Federico Valverde,Aurélien Tchouaméni;Kylian Mbappé,Vinícius Júnior',
+'Gianluigi Donnarumma,James Trafford;Rúben Dias,Joško Gvardiol,John Stones;Rodri,Phil Foden,Bernardo Silva;Erling Haaland,Omar Marmoush',
+'Lucas Chevalier,Matvey Safonov;Achraf Hakimi,Marquinhos,Nuno Mendes;Vitinha,João Neves,Fabián Ruiz;Ousmane Dembélé,Bradley Barcola',
+'Manuel Neuer,Jonas Urbig;Dayot Upamecano,Jonathan Tah,Alphonso Davies;Joshua Kimmich,Jamal Musiala,Michael Olise;Harry Kane,Luis Díaz',
+'Altay Bayindir,André Onana;Lisandro Martínez,Matthijs de Ligt,Leny Yoro;Bruno Fernandes,Kobbie Mainoo,Casemiro;Bryan Mbeumo,Matheus Cunha',
+'Alisson Becker,Giorgi Mamardashvili;Virgil van Dijk,Ibrahima Konate,Milos Kerkez;Florian Wirtz,Dominik Szoboszlai,Ryan Gravenberch;Mohamed Salah,Alexander Isak',
+'David Raya,Kepa Arrizabalaga;William Saliba,Gabriel Magalhães,Ben White;Martin Ødegaard,Declan Rice,Martín Zubimendi;Bukayo Saka,Viktor Gyökeres',
+'Robert Sánchez,Filip Jørgensen;Levi Colwill,Wesley Fofana,Reece James;Enzo Fernández,Cole Palmer,Moisés Caicedo;João Pedro,Pedro Neto',
+'Michele Di Gregorio,Mattia Perin;Gleison Bremer,Federico Gatti,Andrea Cambiaso;Manuel Locatelli,Teun Koopmeiners,Khephren Thuram;Kenan Yıldız,Dušan Vlahović',
+'Mike Maignan,Pietro Terracciano;Fikayo Tomori,Strahinja Pavlović,Davide Bartesaghi;Luka Modrić,Adrien Rabiot,Youssouf Fofana;Rafael Leão,Christian Pulisic',
+'Gregor Kobel,Alexander Meyer;Nico Schlotterbeck,Waldemar Anton,Ramy Bensebaini;Julian Brandt,Felix Nmecha,Pascal Gross;Serhou Guirassy,Karim Adeyemi',
+'Jan Oblak,Juan Musso;José María Giménez,Robin Le Normand,Marcos Llorente;Koke,Pablo Barrios,Conor Gallagher;Julián Álvarez,Antoine Griezmann',
+'Rocco Ríos Novo,Óscar Ustari;Jordi Alba,Tomás Avilés,Maximiliano Falcón;Rodrigo De Paul,Telasco Segovia,Benjamin Cremaschi;Lionel Messi,Luis Suárez',
+'Novak Micovic,John McCarthy;Maya Yoshida,Emiro Garcés,Jalen Neal;Riqui Puig,Marco Reus,Diego Fagúndez;Gabriel Pec,Joseph Paintsil',
+'Remko Pasveer,Vítězslav Jaroš;Josip Šutalo,Anton Gaaei,Youri Baas;Kenneth Taylor,Jordan Henderson,Davy Klaassen;Mika Godts,Wout Weghorst',
+/* nations, in NATS_RAW order */
+'Guillermo Ochoa,Raúl Rangel;Johan Vásquez,César Montes,Jesús Gallardo;Edson Álvarez,Luis Chávez,Orbelín Pineda;Santiago Giménez,Raúl Jiménez',
+'Ronwen Williams,Veli Mothwa;Khuliso Mudau,Siyanda Xulu,Aubrey Modiba;Teboho Mokoena,Themba Zwane,Sphephelo Sithole;Percy Tau,Lyle Foster',
+'Kim Seung-gyu,Jo Hyeon-woo;Kim Min-jae,Seol Young-woo,Lee Ki-je;Lee Kang-in,Hwang In-beom,Paik Seung-ho;Son Heung-min,Hwang Hee-chan',
+'Matěj Kovář,Jindřich Staněk;Ladislav Krejčí,Vladimír Coufal,Robin Hranáč;Tomáš Souček,Lukáš Provod,Vladimír Darida;Patrik Schick,Adam Hložek',
+'Maxime Crepeau,Dayne St. Clair;Alphonso Davies,Moïse Bombito,Alistair Johnston;Stephen Eustáquio,Ismaël Koné,Jonathan Osorio;Jonathan David,Cyle Larin',
+'Nikola Vasilj,Martin Zlomislić;Sead Kolašinac,Tarik Muharemović,Nihad Mujakić;Amir Hadžiahmetović,Armin Gigović,Dženis Burnic;Edin Džeko,Ermedin Demirović',
+'Meshaal Barsham,Saad Al Sheeb;Boualem Khoukhi,Abdelkarim Hassan,Pedro Miguel;Karim Boudiaf,Ahmed Alaa,Hassan Al-Haydos;Akram Afif,Almoez Ali',
+'Yann Sommer,Gregor Kobel;Manuel Akanji,Ricardo Rodríguez,Nico Elvedi;Granit Xhaka,Remo Freuler,Denis Zakaria;Breel Embolo,Dan Ndoye',
+'Alisson,Ederson;Marquinhos,Gabriel Magalhães,Danilo;Bruno Guimaraes,Casemiro,Lucas Paqueta;Vinícius Júnior,Raphinha',
+'Yassine Bounou,Munir Mohamedi;Achraf Hakimi,Nayef Aguerd,Noussair Mazraoui;Sofyan Amrabat,Azzedine Ounahi,Bilal El Khannouss;Brahim Díaz,Youssef En-Nesyri',
+'Johny Placide,Alexandre Pierre;Carlens Arcus,Ricardo Ade,Martin Experience;Danley Jean Jacques,Jean-Ricner Bellegarde,Derrick Etienne;Duckens Nazon,Frantzdy Pierrot',
+'Angus Gunn,Craig Gordon;Andrew Robertson,Kieran Tierney,Scott McKenna;Scott McTominay,John McGinn,Billy Gilmour;Lyndon Dykes,Che Adams',
+'Matt Turner,Matt Freese;Chris Richards,Antonee Robinson,Sergino Dest;Tyler Adams,Weston McKennie,Yunus Musah;Christian Pulisic,Folarin Balogun',
+'Orlando Gill,Gatito Fernandez;Gustavo Gómez,Omar Alderete,Junior Alonso;Miguel Almirón,Mathias Villasanti,Diego Gómez;Julio Enciso,Antonio Sanabria',
+'Mat Ryan,Joe Gauci;Harry Souttar,Kye Rowles,Aziz Behich;Jackson Irvine,Aaron Mooy,Connor Metcalfe;Mitchell Duke,Nestory Irankunda',
+'Uğurcan Çakır,Altay Bayindir;Merih Demiral,Abdulkerim Bardakçı,Ferdi Kadıoğlu;Hakan Çalhanoğlu,Arda Güler,İsmail Yüksek;Kenan Yıldız,Barış Alper Yılmaz',
+'Marc-André ter Stegen,Oliver Baumann;Antonio Rüdiger,Jonathan Tah,Nico Schlotterbeck;Joshua Kimmich,Jamal Musiala,Florian Wirtz;Kai Havertz,Leroy Sane',
+'Eloy Room,Trevor Doornbusch;Roshon van Eijma,Shurandy Sambo,Jurien Gaari;Leandro Bacuna,Juninho Bacuna,Tyrick Bodak;Jürgen Locadia,Tahith Chong',
+'Yahia Fofana,Badra Ali Sangaré;Evan Ndicka,Odilon Kossounou,Ghislain Konan;Franck Kessié,Seko Fofana,Ibrahim Sangaré;Sébastien Haller,Simon Adingra',
+'Hernán Galíndez,Alexander Domínguez;Piero Hincapié,Willian Pacho,Pervis Estupiñán;Moisés Caicedo,Kendry Páez,Alan Franco;Enner Valencia,Kevin Rodríguez',
+'Bart Verbruggen,Mark Flekken;Virgil van Dijk,Nathan Aké,Denzel Dumfries;Frenkie de Jong,Tijjani Reijnders,Ryan Gravenberch;Cody Gakpo,Memphis Depay',
+'Zion Suzuki,Daiya Maekawa;Takehiro Tomiyasu,Ko Itakura,Hiroki Ito;Wataru Endo,Daichi Kamada,Kaoru Mitoma;Takefusa Kubo,Ayase Ueda',
+'Viktor Johansson,Robin Olsen;Victor Lindelöf,Isak Hien,Gabriel Gudmundsson;Dejan Kulusevski,Lucas Bergvall,Jesper Karlström;Alexander Isak,Viktor Gyökeres',
+'Aymen Dahmen,Bechir Ben Said;Montassar Talbi,Ali Abdi,Yassine Meriah;Ellyes Skhiri,Hannibal Mejbri,Mohamed Ali Ben Romdhane;Hazem Mastouri,Youssef Msakni',
+'Thibaut Courtois,Koen Casteels;Wout Faes,Zeno Debast,Timothy Castagne;Kevin De Bruyne,Youri Tielemans,Amadou Onana;Romelu Lukaku,Jérémy Doku',
+'Mohamed El Shenawy,Mostafa Shobeir;Mohamed Abdelmonem,Ahmed Hegazi,Ramy Rabia;Mohamed Elneny,Emam Ashour,Trezeguet;Mohamed Salah,Omar Marmoush',
+'Alireza Beiranvand,Hossein Hosseini;Hossein Kanaani,Shojae Khalilzadeh,Milad Mohammadi;Saeid Ezatolahi,Saman Ghoddos,Alireza Jahanbakhsh;Mehdi Taremi,Sardar Azmoun',
+'Max Crocombe,Alex Paulsen;Tommy Smith,Michael Boxall,Liberato Cacace;Joe Bell,Marko Stamenic,Sarpreet Singh;Chris Wood,Elijah Just',
+'Unai Simon,David Raya;Pau Cubarsí,Marc Cucurella,Dani Carvajal;Rodri,Pedri,Fabián Ruiz;Lamine Yamal,Nico Williams',
+'Vozinha,Márcio Rosa;Logan Costa,Roberto Lopes,Stopira;Kevin Pina,Jamiro Monteiro,Telmo Arcanjo;Ryan Mendes,Bebé',
+'Mohammed Al-Owais,Nawaf Al-Aqidi;Ali Al-Bulaihi,Hassan Tambakti,Saud Abdulhamid;Salem Al-Dawsari,Mohamed Kanno,Nasser Al-Dawsari;Firas Al-Buraikan,Saleh Al-Shehri',
+'Sergio Rochet,Santiago Mele;Ronald Araujo,José María Giménez,Mathias Olivera;Federico Valverde,Manuel Ugarte,Rodrigo Bentancur;Darwin Núñez,Facundo Pellistri',
+'Mike Maignan,Brice Samba;William Saliba,Dayot Upamecano,Theo Hernández;Aurélien Tchouaméni,N\'Golo Kanté,Eduardo Camavinga;Kylian Mbappé,Ousmane Dembélé',
+'Édouard Mendy,Yehvann Diouf;Kalidou Koulibaly,Abdou Diallo,Moussa Niakhaté;Idrissa Gueye,Pape Matar Sarr,Lamine Camara;Sadio Mané,Nicolas Jackson',
+'Ørjan Nyland,Egil Selvik;Leo Østigård,Kristoffer Ajer,Julian Ryerson;Martin Ødegaard,Sander Berge,Patrick Berg;Erling Haaland,Alexander Sørloth',
+'Jalal Hassan,Ahmed Basil;Rebin Sulaka,Ali Adnan,Zaid Tahseen;Amir Al-Ammari,Ibrahim Bayesh,Osama Rashid;Aymen Hussein,Mohanad Ali',
+'Emiliano Martínez,Gerónimo Rulli;Cristian Romero,Nicolás Otamendi,Nahuel Molina;Rodrigo De Paul,Enzo Fernández,Alexis Mac Allister;Lionel Messi,Lautaro Martínez',
+'Anthony Mandrea,Luca Zidane;Aïssa Mandi,Ramy Bensebaini,Rayan Aït-Nouri;Ismaël Bennacer,Nabil Bentaleb,Houssem Aouar;Riyad Mahrez,Amine Gouiri',
+'Patrick Pentz,Alexander Schlager;Kevin Danso,Philipp Lienhart,Stefan Posch;Marcel Sabitzer,Konrad Laimer,Christoph Baumgartner;Marko Arnautovic,Michael Gregoritsch',
+'Yazeed Abu Laila,Abdallah Al-Fakhouri;Yazan Al-Arab,Ehsan Haddad,Abdallah Nasib;Nizar Al-Rashdan,Noor Al-Rawabdeh,Mahmoud Al-Mardi;Musa Al-Taamari,Ali Olwan',
+'Diogo Costa,José Sá;Rúben Dias,Nuno Mendes,João Cancelo;Bruno Fernandes,Vitinha,João Neves;Cristiano Ronaldo,Rafael Leão',
+'Lionel Mpasi,Timothy Fayulu;Chancel Mbemba,Arthur Masuaku,Axel Tuanzebe;Samuel Moutoussamy,Noah Sadiki,Edo Kayembe;Yoane Wissa,Cédric Bakambu',
+'Utkir Yusupov,Abduvohid Nematov;Abdukodir Khusanov,Rustam Ashurmatov,Farrukh Sayfiev;Otabek Shukurov,Jaloliddin Masharipov,Odiljon Hamrobekov;Eldor Shomurodov,Abbosbek Fayzullaev',
+'Camilo Vargas,David Ospina;Dávinson Sánchez,Daniel Munoz,Johan Mojica;James Rodríguez,Jefferson Lerma,Richard Rios;Luis Díaz,Luis Suárez',
+'Jordan Pickford,Dean Henderson;John Stones,Marc Guehi,Trent Alexander-Arnold;Jude Bellingham,Declan Rice,Phil Foden;Harry Kane,Bukayo Saka',
+'Dominik Livaković,Ivica Ivušić;Joško Gvardiol,Josip Šutalo,Josip Stanišić;Luka Modrić,Mateo Kovačić,Marcelo Brozović;Andrej Kramarić,Ante Budimir',
+'Lawrence Ati-Zigi,Benjamin Asare;Mohammed Salisu,Alexander Djiku,Gideon Mensah;Thomas Partey,Mohammed Kudus,Kamaldeen Sulemana;Jordan Ayew,Iñaki Williams',
+'Orlando Mosquera,Luis Mejía;Fidel Escobar,Michael Amir Murillo,José Córdoba;Adalberto Carrasquilla,Aníbal Godoy,Cristian Martínez;José Fajardo,Ismael Díaz'
+];
+const STAR_R={
+ 'Lionel Messi':5,'Kylian Mbappé':5,'Erling Haaland':5,'Lamine Yamal':5,'Vinícius Júnior':5,'Jude Bellingham':5,'Harry Kane':5,'Mohamed Salah':5,'Ousmane Dembélé':5,'Rodri':5,
+ 'Thibaut Courtois':4.5,'Alisson Becker':4.5,'Alisson':4.5,'Florian Wirtz':4.5,'Jamal Musiala':4.5,'Bukayo Saka':4.5,'Declan Rice':4.5,'Federico Valverde':4.5,'Phil Foden':4.5,'Raphinha':4.5,'Cristiano Ronaldo':4.5,'Virgil van Dijk':4.5,'Kevin De Bruyne':4.5,'Martin Ødegaard':4.5,'Joshua Kimmich':4.5,'Bruno Fernandes':4.5,'Son Heung-min':4.5,'Lautaro Martínez':4.5,'Julián Álvarez':4.5,'Luis Díaz':4.5,'Antoine Griezmann':4.5,'Robert Lewandowski':4.5,'Rúben Dias':4.5,'William Saliba':4.5,'Achraf Hakimi':4.5,'Nuno Mendes':4.5,'Vitinha':4.5,'João Neves':4.5,'Marquinhos':4.5,'Gabriel Magalhães':4.5,'Luka Modrić':4.5,'Rafael Leão':4.5,'Alexander Isak':4.5,'Viktor Gyökeres':4.5,'Gianluigi Donnarumma':4.5,'Mike Maignan':4.5,'Unai Simon':4.5,'Emiliano Martínez':4.5,'Cole Palmer':4.5,'Enzo Fernández':4.5,'Alexis Mac Allister':4.5,'Cristian Romero':4.5,'Joško Gvardiol':4.5,'Pedri':4.5,'Moisés Caicedo':4.5,'Nico Williams':4.5,'Kenan Yıldız':4.5,'Michael Olise':4.5,'Jules Koundé':4.5,'Federico Valverde ':4.5,'Bernardo Silva':4.5,'Frenkie de Jong':4.5,'Aurélien Tchouaméni':4.5,'Trent Alexander-Arnold':4.5,'Granit Xhaka':4,'Jan Oblak':4.5,'Manuel Neuer':4,'Gregor Kobel':4,'Yann Sommer':4,'Diogo Costa':4.5,'Yassine Bounou':4.5,'Sadio Mané':4,'Christian Pulisic':4,'Alphonso Davies':4,'Jonathan David':4,'Hakan Çalhanoğlu':4,'Arda Güler':4,'Jordan Pickford':4.5,'Luis Suárez':4,'Mehdi Taremi':4,'Victor Lindelöf':3.5
+};
+function pretty(n){return n}
 function genRoster(ti){
- const rng=rngOf(ti*7919+13),T=TEAMS[ti],mean=[0,0,2.7,3.2,3.6,4.1][T.tier],seen={},out=[];
+ const rng=rngOf(ti*7919+13),T=TEAMS[ti],mean=[0,0,2.7,3.2,3.6,4.1][T.tier],seen={},out=[],real=REAL_RAW[ti]?REAL_RAW[ti].replace(/;/g,',').split(','):null;
  POS_PLAN.forEach((pos,k)=>{
   seen[pos]=(seen[pos]||0);const starter=seen[pos]===0,num=POS_NUMS[pos][seen[pos]];seen[pos]++;
-  out.push({id:'c'+ti+'_'+k,name:genName(rng,NAMES_USED),pos,r:snap5(mean+(rng()-.5)*1.5+(starter?.25:-.55)),num});
+  const fake=genName(rng,NAMES_USED),nm=real&&real[k]?real[k].trim():fake,rt=snap5(mean+(rng()-.5)*1.5+(starter?.25:-.55));
+  out.push({id:'c'+ti+'_'+k,name:nm,pos,r:STAR_R[nm]!=null?Math.max(rt,STAR_R[nm]):rt,num});
  });
  return out;
 }
@@ -1717,10 +1794,18 @@ const cutRefund=p=>Math.round(pval(p)*.2);
 const userRoster=F=>F.rosters[F.user];
 const findPl=(ro,id)=>ro.find(p=>p.id===id);
 
+const ovrToR=o=>o>=90?5:o>=86?4.5:o>=82?4:o>=78?3.5:o>=74?3:o>=70?2.5:o>=66?2:1.5;
+/* real free agents for franchise mode: name:position:overall */
+const FA_POOL='Aaron Ramsdale:GK:76,Kepa Arrizabalaga:GK:77,Yann Sommer:GK:78,Alphonse Areola:GK:77,Kyle Walker:DEF:78,Harry Maguire:DEF:79,Ben Chilwell:DEF:75,Benjamin Pavard:DEF:79,Jan Bednarek:DEF:73,Joel Matip:DEF:74,Jonny Evans:DEF:72,Daley Blind:DEF:72,Lucas Digne:DEF:75,Jordan Henderson:MID:73,Mason Mount:MID:76,Conor Gallagher:MID:79,Marco Verratti:MID:76,Ilkay Gundogan:MID:80,Christian Eriksen:MID:77,Thiago Alcantara:MID:74,Jesse Lingard:MID:70,Hakim Ziyech:MID:76,Jamie Vardy:FWD:73,Callum Wilson:FWD:74,Ivan Toney:FWD:79,Dominic Calvert-Lewin:FWD:75,Wilfried Zaha:FWD:73,Danny Welbeck:FWD:73,Timo Werner:FWD:75,Memphis Depay:FWD:78,Jack Grealish:MID:80,Lorenzo Insigne:FWD:74'.split(',').map(s=>{const a=s.split(':');return{name:a[0],pos:a[1],o:+a[2]}});
+
 function newFreeAgents(F,rng,n){
  const out=[],order=['GK','DEF','DEF','MID','MID','FWD','DEF','MID','FWD','GK'];
  for(let i=0;i<n;i++){
   const pos=order[i%order.length];F.faN=(F.faN||0)+1;
+  const taken=new Set((F.fa||[]).map(p=>p.name).concat(out.map(p=>p.name)));
+  for(const ro of (F.rosters||[]))for(const p of ro)taken.add(p.name);
+  const cand=FA_POOL.filter(p=>p.pos===pos&&!taken.has(p.name));
+  if(cand.length){const c=cand[Math.floor(rng()*cand.length)];out.push({id:'f'+F.faN,name:c.name,pos,r:snap5(ovrToR(c.o)+(rng()-.5)*.6),num:0});continue}
   const r=snap5(2.2+rng()*1.9+(rng()<.12?.8:0));
   out.push({id:'f'+F.faN,name:genName(rng,NAMES_USED),pos,r,num:0});
  }
@@ -2560,6 +2645,18 @@ function renderMode(){
 
 /* save: private db doc + localStorage fallback */
 const LSK='striker.franchise.v1';let DBC=null;
+
+function realizeSave(F){
+ try{
+  if(!F||F.realNames||!F.rosters)return;
+  F.rosters.forEach(ro=>ro.forEach(p=>{
+   const m=/^c(\d+)_(\d+)$/.exec(p.id||'');if(!m)return;
+   const t=+m[1],k=+m[2],d=DEFAULT_ROSTERS[t]&&DEFAULT_ROSTERS[t][k];
+   if(d&&REAL_RAW[t])p.name=d.name;
+  }));
+  F.realNames=1;
+ }catch(e){}
+}
 async function loadSave(){
  let data=null;
  try{const raw=localStorage.getItem(LSK);if(raw)data=JSON.parse(raw)}catch(e){}
@@ -2574,7 +2671,7 @@ async function loadSave(){
    }
   }
  }catch(e){}
- if(data&&data.rosters&&data.sched&&!FR&&G.state==='menu'){FR=data;MODE='fr'}
+ if(data&&data.rosters&&data.sched&&!FR&&G.state==='menu'){realizeSave(data);FR=data;MODE='fr'}
 }
 function save(){
  try{
@@ -2616,7 +2713,7 @@ function homeHtml(F){
   const oi=um.a===F.user?um.b:um.a,o=TEAMS[oi],q=teamRatings(oi,F.rosters),m=teamRatings(F.user,F.rosters);
   h+='<div class="card"><h3>'+matchTitle(F)+(F.phase==='po'?' · knockout, no draws':'')+'</h3><div class="vs"><div class="t">'+kdot(TEAMS[F.user])+esc(TEAMS[F.user].short)+'</div><span>vs</span><div class="t">'+kdot(o)+esc(o.name)+'</div></div>'+
    '<div class="stats" style="max-width:420px;margin:0 0 14px"><span>You OVR</span><i style="--v:'+rbar(m.ovr)+';--tc:'+TEAMS[F.user].ui+'"></i><span>'+esc(o.short)+' OVR</span><i style="--v:'+rbar(q.ovr)+';--tc:'+o.ui+'"></i></div>'+
-   '<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="go" style="width:auto" data-a="play">'+(F.rtg?'Play as '+esc(rgPlayer(F).name.split(' ').slice(-1)[0]):'Play match')+'</button><button type="button" class="btn" data-a="sim">Simulate it</button></div></div>';
+   '<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="go" style="width:auto" data-a="play">'+(F.rtg?'Play as '+esc(lastName(rgPlayer(F).name)):'Play match')+'</button><button type="button" class="btn" data-a="sim">Simulate it</button></div></div>';
  }else{
   h+='<div class="card"><h3>Playoffs</h3><p style="margin:0 0 12px">'+(F.userQualified?'You are out of the playoffs.':'Your club missed the top '+PO_SIZE+'.')+' The rest of the bracket can be simulated.</p><button type="button" class="go" style="max-width:340px" data-a="simrest">Simulate the playoffs</button></div>';
  }
@@ -2649,7 +2746,7 @@ function faceSvg(p,t){
 }
 function cardHtml(p,t,F,xi){
  const tier=p.r>=4.5?'t5':p.r>=3.5?'t4':p.r>=2.5?'t3':'t2',s=cardStats(p);
- return'<div class="pc '+tier+'" title="'+esc(p.name)+' · '+p.pos+' · '+p.r.toFixed(1)+' /5"><div class="pcr"><b>'+p.r.toFixed(1)+'</b><span>'+p.pos+'</span><i style="background:'+t.c+';box-shadow:inset 0 0 0 2px '+t.c2+'"></i></div><div class="pcf">'+faceSvg(p,t)+'</div><div class="pcn">'+esc(p.name.split(' ').slice(-1)[0])+'</div><div class="pcs">'+s.map(x=>'<span><b>'+x[1]+'</b>'+x[0]+'</span>').join('')+'</div><div class="pcg">#'+p.num+(F.goals[p.id]?' · ⚽'+F.goals[p.id]:'')+'</div></div>';
+ return'<div class="pc '+tier+'" title="'+esc(p.name)+' · '+p.pos+' · '+p.r.toFixed(1)+' /5"><div class="pcr"><b>'+p.r.toFixed(1)+'</b><span>'+p.pos+'</span><i style="background:'+t.c+';box-shadow:inset 0 0 0 2px '+t.c2+'"></i></div><div class="pcf">'+faceSvg(p,t)+'</div><div class="pcn">'+esc(lastName(p.name))+'</div><div class="pcs">'+s.map(x=>'<span><b>'+x[1]+'</b>'+x[0]+'</span>').join('')+'</div><div class="pcg">#'+p.num+(F.goals[p.id]?' · ⚽'+F.goals[p.id]:'')+'</div></div>';
 }
 function xiHtml(F){
  const t=TEAMS[F.user],ro=F.rosters[F.user],xs=startersFrom(ro),ids=new Set(xs.map(p=>p.id));
@@ -2781,7 +2878,7 @@ async function loadRG(){
  let data=null;
  try{const raw=localStorage.getItem(RGK);if(raw)data=JSON.parse(raw)}catch(e){}
  try{if(DBC){const snap=await DBC.doc('rtg').get();if(snap.exists){const d=snap.data();if(d&&d.json){const x=JSON.parse(d.json);if(!data||(x.savedAt||0)>=(data.savedAt||0))data=x}}}}catch(e){}
- if(data&&data.rosters&&data.sched&&data.rtg&&!RG&&G.state==='menu')RG=data;
+ if(data&&data.rosters&&data.sched&&data.rtg&&!RG&&G.state==='menu'){realizeSave(data);RG=data}
 }
 const XP_STEP=120;
 function rgStarters(ti){return startersFrom(DEFAULT_ROSTERS[ti]).filter(p=>p.pos!=='GK'&&p.id&&p.id[0]!=='x')}
