@@ -3384,7 +3384,7 @@ function wireWc(){
 /* ---------- ULTIMATE TEAM ---------- */
 const UTK='minicup.ut.v1',UT_RAR=[['common','Common'],['uncommon','Uncommon'],['rare','Rare'],['epic','Epic'],['legendary','Legendary']];
 const rarIdx=r=>r>=5?4:r>=4.5?3:r>=4?2:r>=3?1:0;
-const UT_PACK=[250,700],UT_WIN=120;
+const UT_PACK=[250,700],UT_MODES={rookie:{n:'Rookie',diff:'easy',win:90,d:'Start with your club\'s full starting squad. Matches are on easy.'},pro:{n:'Pro',diff:'normal',win:120,d:'Start with a few good players and the rest average. Matches are on medium.'},allstar:{n:'All Star',diff:'hard',win:170,d:'Start with all bad players. Matches are on hard, but wins pay the most coins.'}};
 const UT_ODDS={std:[46,32,15,6,1],pre:[8,28,36,22,6],fix:[0,0,65,27,8]};
 const UT_PERK={coin:{n:'Coin boost',d:'+50% coins from your next 3 matches',c:200,k:3},fit:{n:'Pro fitness',d:'Your players tire half as fast for 3 matches',c:160,k:3},to:{n:'Extra timeout',d:'A second timeout in your next match',c:120,k:1}};
 const UT_MAX=40;
@@ -3403,9 +3403,11 @@ async function loadUT(){
  try{if(DBC){const snap=await DBC.doc('ut').get();if(snap.exists){const d=snap.data();if(d&&d.json){const x=JSON.parse(d.json);if(!data||(x.savedAt||0)>=(data.savedAt||0))data=x}}}}catch(e){}
  if(data&&data.squad&&!UT&&G.state==='menu'){UT=data;UT.opp=utPickOpp()}
 }
-function utNew(user,len){
- const squad=DEFAULT_ROSTERS[user].map((p,i)=>({id:'u'+i,name:p.name,pos:p.pos,r:p.r,num:p.num}));
- const U={v:1,user,len,coins:300,squad,nid:squad.length,opp:null,w:0,d:0,l:0,gf:0,ga:0,earned:0,perk:{coin:0,fit:0,to:0},last:null,savedAt:0};
+function utNew(user,len,mode){
+ const base=DEFAULT_ROSTERS[user],top=base.map(p=>p.r).sort((a,b)=>b-a)[2];
+ const sq=p=>mode==='allstar'?Math.min(p.r,2):mode==='pro'?(p.r>=top?p.r:Math.min(p.r,3)):p.r;
+ const squad=base.map((p,i)=>({id:'u'+i,name:p.name,pos:p.pos,r:sq(p),num:p.num}));
+ const U={v:1,user,len,coins:300,squad,nid:squad.length,mode,opp:null,w:0,d:0,l:0,gf:0,ga:0,earned:0,perk:{coin:0,fit:0,to:0},last:null,savedAt:0};
  UT=U;U.opp=utPickOpp();return U;
 }
 function utPickOpp(){const c=[...Array(NCLUB).keys()].filter(i=>i!==UT.user);return c[Math.floor(Math.random()*c.length)]}
@@ -3434,7 +3436,7 @@ const utSellVal=p=>Math.max(15,Math.round(pval(p)*.55));
 function utCanSell(p){return UT.squad.filter(x=>x.pos===p.pos).length>SQUAD_MIN[p.pos]}
 function utRecord(r){
  const U=UT,gu=r.gu,go=r.go,res=gu>go?'w':gu<go?'l':'d';
- let c=UT_WIN*(res==='w'?1:res==='d'?.4:.15)+10*gu;
+ let c=(UT_MODES[U.mode||'pro'].win)*(res==='w'?1:res==='d'?.4:.15)+10*gu;
  if(U.perk.coin>0){c*=1.5;U.perk.coin--}
  if(U.perk.fit>0)U.perk.fit--;
  if(U.perk.to>0)U.perk.to--;
@@ -3445,7 +3447,7 @@ function utRecord(r){
 }
 function utHead(){
  const U=UT,t=TEAMS[U.user];
- return'<div class="hubhead">'+kdot(t).replace('16px','30px').replace('16px','30px')+'<div><div class="nm">'+esc(t.name)+' · Ultimate Team</div><div class="sub">'+U.w+'W '+U.d+'D '+U.l+'L · '+U.squad.length+' players</div></div><div class="utc">◎ '+U.coins+'</div></div>';
+ return'<div class="hubhead">'+kdot(t).replace('16px','30px').replace('16px','30px')+'<div><div class="nm">'+esc(t.name)+' · Ultimate Team</div><div class="sub">'+U.w+'W '+U.d+'D '+U.l+'L · '+U.squad.length+' players · '+UT_MODES[U.mode||'pro'].n+'</div></div><div class="utc">◎ '+U.coins+'</div></div>';
 }
 function utHub(){
  const tabs=[['home','Play'],['store','Store'],['squad','Squad'],['xi','Lineup']];
@@ -3468,7 +3470,7 @@ function utHome(){
  return'<div class="card"><h3>Next match</h3><p class="note" style="margin:0 0 10px">Beat clubs from around the league to earn coins.</p>'+
   '<div class="vs"><div class="t">'+kdot(TEAMS[U.user])+esc(TEAMS[U.user].short)+'</div><span>vs</span><div class="t">'+kdot(o)+esc(o.name)+'</div></div>'+
   '<div class="stats" style="max-width:420px;margin:0 0 12px"><span>You OVR</span><i style="--v:'+rbar(m.ovr)+';--tc:'+TEAMS[U.user].ui+'"></i><span>'+esc(o.short)+' OVR</span><i style="--v:'+rbar(q.ovr)+';--tc:'+o.ui+'"></i></div>'+
-  '<p style="margin:0 0 12px">Win: <b>◎ '+UT_WIN+'</b> · draw ◎ '+Math.round(UT_WIN*.4)+' · plus ◎ 10 per goal'+(perks?'<br>Active: '+perks:'')+'</p>'+
+  '<p style="margin:0 0 12px">Win: <b>◎ '+UT_MODES[U.mode||'pro'].win+'</b> · draw ◎ '+Math.round(UT_MODES[U.mode||'pro'].win*.4)+' · plus ◎ 10 per goal'+(perks?'<br>Active: '+perks:'')+'</p>'+
   '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><button type="button" class="go" style="width:auto" data-a="uplay">Play match</button><div>'+segHtml('ulen',U.len,LENS)+'</div></div></div>'+
   '<div class="card"><h3>Record</h3><p style="margin:0">'+U.w+' wins · '+U.d+' draws · '+U.l+' losses · goals '+U.gf+'–'+U.ga+' · '+U.earned+' coins earned in total</p></div>';
 }
@@ -3507,14 +3509,14 @@ function utAction(el){
  const a=el.dataset.a,v=el.dataset.v;
  if(a==='upick'){US.user=+v;accent(US.user);return renderUt()}
  if(a==='ulen'){if(UT)UT.len=+v,utSave();else US.len=+v;return renderUt()}
- if(a==='ustart'){utNew(US.user,US.len);utTab='home';UTMSG='';UTCONF=null;utSave();return renderMode()}
+ if(a==='ustart'){return utPickMode()}
  const U=UT;if(!U)return;
  if(a!=='usell'&&a!=='ureset')UTCONF=null;
  if(a==='utab'){utTab=v;UTMSG='';if(v!=='store')U.last=null;return renderUt()}
  if(a==='ureset'){if(UTCONF==='reset'){UT=null;UTCONF=null;UTMSG='';utSave();return renderMode()}UTCONF='reset';return renderUt()}
  if(a==='uplay'){
   UTMSG='';
-  return launchMatch({user:U.user,opp:U.opp,diff:'normal',len:U.len,rosters:utRosters(),title:'Ultimate Team',fr:true,ut:true,fit:U.perk.fit>0,xto:U.perk.to>0?1:0,onEnd:r=>utRecord(r)});
+  return launchMatch({user:U.user,opp:U.opp,diff:UT_MODES[U.mode||'pro'].diff,len:U.len,rosters:utRosters(),title:'Ultimate Team',fr:true,ut:true,fit:U.perk.fit>0,xto:U.perk.to>0?1:0,onEnd:r=>utRecord(r)});
  }
  if(a==='upack'){UTMSG=utOpen(v);utSave();return renderUt()}
  if(a==='uperk'){const p=UT_PERK[v];if(U.coins<p.c){UTMSG='Not enough coins.'}else{U.coins-=p.c;U.perk[v]+=p.k;UTMSG=p.n+' active.'}utSave();return renderUt()}
@@ -3530,6 +3532,14 @@ function utAction(el){
   if(U.last)U.last.cards=U.last.cards.filter(x=>x!==v);
   UTMSG=p.name+' sold for '+c+' coins.';utSave();return renderUt();
  }
+}
+function utPickMode(){
+ const o=document.createElement('div');o.id='utdiff';
+ o.style.cssText='position:fixed;inset:0;z-index:900;background:radial-gradient(circle at 50% 30%,#2a1458,#0a0f26 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px;overflow:auto';
+ o.innerHTML='<h1 style="margin:0;font-size:clamp(28px,5vw,48px)">Choose your difficulty</h1><p style="margin:0;color:#b7c0e6;text-align:center">Pick a game mode for '+esc(TEAMS[US.user].name)+'. You can\'t change it later.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;width:min(900px,100%)">'+
+  Object.keys(UT_MODES).map((k,i)=>'<button type="button" class="pack" data-md="'+k+'" style="padding:22px;gap:10px;background:linear-gradient(160deg,'+['#1f6b3a,#0e3a20','#1d4f9b,#0e2a5a','#8a1f3d,#4a0f20'][i]+')"><b style="font-size:26px">'+UT_MODES[k].n+'</b><span style="font-size:15px;color:#e6ebff">'+UT_MODES[k].d+'</span><em>◎ '+UT_MODES[k].win+' per win</em></button>').join('')+'</div>';
+ o.addEventListener('click',e=>{const b=e.target.closest('[data-md]');if(!b)return;o.remove();utNew(US.user,US.len,b.dataset.md);utTab='home';UTMSG='';UTCONF=null;utSave();renderMode()});
+ document.body.appendChild(o);
 }
 function wireUt(){
  $('#utRoot').addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&!el.disabled)utAction(el)});
