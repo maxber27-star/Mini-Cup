@@ -316,6 +316,9 @@ main.app:has(#game:not([hidden])) ~ #setTop{display:none}
 @media (pointer:coarse){.touch{display:flex}.keys-wrap{display:none}}
 @media (max-width:820px){.cols{grid-template-columns:minmax(0,1fr)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(min-width:900px){.app>section:not(#title){zoom:0.75}.tolay .xipitch{height:calc((100vh - 200px)/0.75)}.tolay .benchrow{max-height:calc((100vh - 215px)/0.75)}.tobox{zoom:0.75;max-height:calc((100vh - 20px)/0.75)}#game .stage{max-width:calc((100vh - 110px)*1.5/0.75)}.setbox{zoom:0.8;max-height:calc((100vh - 20px)/0.8)}}
+@media(min-width:900px) and (max-height:860px){.app>section:not(#title){zoom:0.62}.tolay .xipitch{height:calc((100vh - 200px)/0.62)}.tolay .benchrow{max-height:calc((100vh - 215px)/0.62)}.tobox{zoom:0.62;max-height:calc((100vh - 20px)/0.62)}#game .stage{max-width:calc((100vh - 110px)*1.5/0.62)}.setbox{zoom:0.67;max-height:calc((100vh - 20px)/0.67)}}
+@media(min-width:900px) and (max-height:720px){.app>section:not(#title){zoom:0.55}.tolay .xipitch{height:calc((100vh - 200px)/0.55)}.tolay .benchrow{max-height:calc((100vh - 215px)/0.55)}.tobox{zoom:0.55;max-height:calc((100vh - 20px)/0.55)}#game .stage{max-width:calc((100vh - 110px)*1.5/0.55)}.setbox{zoom:0.6000000000000001;max-height:calc((100vh - 20px)/0.6000000000000001)}}
 </style>
 <main class="app">
   <section id="title" aria-label="Mini Cup title screen">
