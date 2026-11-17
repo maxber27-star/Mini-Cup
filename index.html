@@ -1355,6 +1355,16 @@ function gkThink(p,dt){
   return;
  }
  p.holdT=0;
+ if(!b.owner&&!p.dive&&G.state==='play'&&-dir*b.vx>260&&p.diveId!==b.kickId){
+  const t=(lineX-b.x)/b.vx;
+  if(t>.06&&t<.75){
+   const yy=b.y+b.vy*t,zz=b.z+b.vz*t-GRAV*t*t/2,gap=Math.abs(yy-p.y);
+   if(yy>GY0-14&&yy<GY1+14&&gap>26&&gap<230&&zz<72){
+    p.diveId=b.kickId;
+    if(Math.random()<.6+.4*aiOf(p).gk){const sy=yy>p.y?1:-1,dur=.46,ty=clamp(yy,GY0-6,GY1+6);p.dive={t:0,dur,rec:.65,sy,vx:0,vy:clamp((ty-p.y)/(dur*.65),-760,760)};sfx('ooh')}
+   }
+  }
+ }
  const dGoal=Math.abs(b.x-lineX);
  const inBox=dGoal<175&&Math.abs(b.y-PH/2)<190;
  if(!b.owner&&inBox&&Math.hypot(b.vx,b.vy)<260&&b.z<30&&gkNearest(p)){go(p,b.x,b.y,1);return}
@@ -1506,6 +1516,7 @@ function movePlayers(dt,live){
  if(!live)G.sprintOn=false;
  for(const p of G.players){
   const T=G.teams[p.team],ai=aiOf(p);
+  if(p.dive){const dv=p.dive,was=dv.t;dv.t+=dt;if(was<dv.dur&&dv.t>=dv.dur){spawnDust(p.x,p.y,8)}if(dv.t>=dv.dur+dv.rec)p.dive=null}
   p.kickCD=Math.max(0,p.kickCD-dt);p.tackleCD=Math.max(0,p.tackleCD-dt);p.stun=Math.max(0,p.stun-dt);p.throwAnim=Math.max(0,(p.throwAnim||0)-dt);p.kickAnim=Math.max(0,(p.kickAnim||0)-dt);
   if(live&&!G.demo&&p.rt){const sp0=Math.hypot(p.vx,p.vy)/132;p.fat=Math.min(1,(p.fat||0)+dt/G.len*(G.fatMul||1)*(.55+.7*Math.min(1.6,sp0))*(p.isGK?.35:1));
    const f=p.fat,m=modsOf(p.rt);p.mSpd=m.mSpd*(1-.26*f);p.mShot=m.mShot*(1-.2*f);p.mTack=m.mTack*(1-.22*f);p.mGK=m.mGK*(1-.12*f);p.mAcc=m.mAcc*(1+.6*f)}
@@ -1522,6 +1533,7 @@ function movePlayers(dt,live){
   }
   if(p.stun>0){wx*=.25;wy*=.25}
   if(p.cel&&p.cel.sv>0){wx=p.cel.sdx*p.cel.sv;wy=p.cel.sdy*p.cel.sv}
+  if(p.dive){const dv=p.dive;if(dv.t<dv.dur){wx=dv.vx;wy=dv.vy}else{wx=wy=0}}
   if((p.slideRec||0)>0){p.slideRec=Math.max(0,p.slideRec-dt);wx*=.08;wy*=.08}
   const a=1-Math.exp(-dt*(human?14:9));
   p.vx+=(wx-p.vx)*a;p.vy+=(wy-p.vy)*a;
@@ -1598,11 +1610,11 @@ function gkSave(g,sp){
  if(sp<330){gkCatch(g);return}
  if(b.gkDone[g.team]===b.kickId)return;
  b.gkDone[g.team]=b.kickId;
- const pSave=clamp(1-(sp-450)/900,.35,.9)*(.3+ai.gk*.6)*(g.mGK||1);
+ const pSave=Math.min(.95,clamp(1-(sp-450)/900,.35,.9)*(.3+ai.gk*.6)*(g.mGK||1)*(g.dive?1.3:1));
  if(Math.random()<pSave){
   sfx('ooh');
   const r=Math.random();
-  if(sp<430||r<.3)gkCatch(g);
+  if(!g.dive&&(sp<430||r<.3))gkCatch(g);
   else gkParry(g,sp,r>.72);
  }else if(Math.random()<.22){
   sfx('post');gkParry(g,sp,Math.random()<.3);
@@ -1636,7 +1648,7 @@ function ballUpdate(dt,live){
   if(live&&G.state==='play'&&outCheck())return;
   walls(b);posts(b);
   if(live){
-   for(const g of G.players)if(g.isGK&&g.stun<=0&&g.kickCD<=0&&b.z<46&&!b.owner&&dist(g,b)<PR+BR+22){gkSave(g,Math.hypot(b.vx,b.vy))}
+   for(const g of G.players)if(g.isGK&&g.stun<=0&&g.kickCD<=0&&b.z<(g.dive&&g.dive.t<g.dive.dur?72:46)&&!b.owner&&dist(g,b)<PR+BR+(g.dive&&g.dive.t<g.dive.dur?66:22)){gkSave(g,Math.hypot(b.vx,b.vy))}
    if(!b.owner&&b.z<22&&b.ghost<0){
     const sp=Math.hypot(b.vx,b.vy);let cand=null,cd=1e9;
     for(const p of G.players){
@@ -2268,7 +2280,9 @@ function drawPlayer(p){
  ctx.lineCap='round';ctx.lineJoin='round';
  ctx.fillStyle='rgba(0,25,10,.28)';ctx.beginPath();ctx.ellipse(sx+1.5*s,sy+.8*s,12*s,5.6*s,0,0,TAU);ctx.fill();
  ctx.fillStyle='rgba(0,25,10,.22)';ctx.beginPath();ctx.ellipse(sx+s,sy+.5*s,7.5*s,3.4*s,0,0,TAU);ctx.fill();
+ if(p.dive){const dv=p.dive,tt=dv.t,fly=tt<dv.dur;hop+=fly?Math.sin(Math.PI*Math.min(1,tt/dv.dur))*24:0;arm=fly?3:1}
  ctx.save();ctx.translate(sway*s,-hop*k);
+ {const dv=p.dive;if(dv){const f=dv.t<dv.dur?Math.min(1,dv.t/.12):Math.max(0,1-(dv.t-dv.dur)/dv.rec*1.1),py=sy-7*k;ctx.translate(sx,py);ctx.rotate(dv.sy*1.45*f);ctx.translate(-sx,-py+4*k*f)}}
  {const sl=p.slide||0,sr=p.slideRec||0;if(sl>0||sr>0){const f=sl>0?Math.min(1,(.5-sl)/.09+.15):Math.min(1,sr/.3),dir0=Math.cos(p.sdx!==undefined?Math.atan2(p.sdy,p.sdx):p.face)>=0?1:-1,py=sy-7*k;ctx.translate(sx,py);ctx.rotate(-dir0*1.25*f);ctx.translate(-sx,-py+5*k*f)}}
  const hipY=sy-(21-crouch)*k,legs=[];
  for(const sg of[-1,1]){
@@ -3370,14 +3384,14 @@ function wireWc(){
 /* ---------- ULTIMATE TEAM ---------- */
 const UTK='minicup.ut.v1',UT_RAR=[['common','Common'],['uncommon','Uncommon'],['rare','Rare'],['epic','Epic'],['legendary','Legendary']];
 const rarIdx=r=>r>=5?4:r>=4.5?3:r>=4?2:r>=3?1:0;
-const UT_DNAME=['','Elite','World Class','Pro','Rookie'];
-const UT_PACK={1:[500,1400],2:[320,900],3:[200,560],4:[120,340]},UT_WIN={1:200,2:140,3:100,4:70},UT_DIFF={1:'hard',2:'normal',3:'normal',4:'easy'};
+const UT_DNAME=['','Rookie','Pro','World Class','Elite'],UT_START={1:1,2:.5,3:0,4:-1};
+const UT_PACK={4:[500,1400],3:[320,900],2:[200,560],1:[120,340]},UT_WIN={4:200,3:140,2:100,1:70},UT_DIFF={4:'hard',3:'normal',2:'normal',1:'easy'};
 const UT_ODDS={std:[46,32,15,6,1],pre:[8,28,36,22,6],fix:[0,0,65,27,8]};
 const UT_PERK={coin:{n:'Coin boost',d:'+50% coins from your next 3 matches',c:200,k:3},fit:{n:'Pro fitness',d:'Your players tire half as fast for 3 matches',c:160,k:3},to:{n:'Extra timeout',d:'A second timeout in your next match',c:120,k:1}};
 const UT_MAX=40;
-let UT=null,US={user:0,len:120},utTab='home',UTMSG='',UTCONF=null,UTDIVS=null;
+let UT=null,US={user:0,len:120,div:2},utTab='home',UTMSG='',UTCONF=null,UTDIVS=null;
 function utDivs(){
- if(!UTDIVS){const o=TEAMS.slice(0,NCLUB).map((_,i)=>[i,teamRatings(i,DEFAULT_ROSTERS).ovr]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);UTDIVS=[o.slice(0,4),o.slice(4,8),o.slice(8,12),o.slice(12,16)]}
+ if(!UTDIVS){const o=TEAMS.slice(0,NCLUB).map((_,i)=>[i,teamRatings(i,DEFAULT_ROSTERS).ovr]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);UTDIVS=[o.slice(12,16),o.slice(8,12),o.slice(4,8),o.slice(0,4)]}
  return UTDIVS;
 }
 function utSave(){
@@ -3392,11 +3406,11 @@ async function loadUT(){
  let data=null;
  try{const raw=localStorage.getItem(UTK);if(raw)data=JSON.parse(raw)}catch(e){}
  try{if(DBC){const snap=await DBC.doc('ut').get();if(snap.exists){const d=snap.data();if(d&&d.json){const x=JSON.parse(d.json);if(!data||(x.savedAt||0)>=(data.savedAt||0))data=x}}}}catch(e){}
- if(data&&data.squad&&!UT&&G.state==='menu')UT=data;
+ if(data&&data.squad&&!UT&&G.state==='menu'){UT=data;if(!UT.v2){UT.v2=1;UT.div=5-UT.div}UT.opp=utPickOpp()}
 }
-function utNew(user,len){
- const squad=DEFAULT_ROSTERS[user].map((p,i)=>({id:'u'+i,name:p.name,pos:p.pos,r:p.r,num:p.num}));
- const U={v:1,user,len,coins:300,squad,nid:squad.length,div:4,opp:null,w:0,d:0,l:0,gf:0,ga:0,earned:0,perk:{coin:0,fit:0,to:0},last:null,savedAt:0};
+function utNew(user,len,div){
+ const sh=UT_START[div]||0,squad=DEFAULT_ROSTERS[user].map((p,i)=>({id:'u'+i,name:p.name,pos:p.pos,r:Math.max(1.5,Math.min(5,p.r+sh)),num:p.num}));
+ const U={v:1,user,len,coins:300,squad,nid:squad.length,div,v2:1,opp:null,w:0,d:0,l:0,gf:0,ga:0,earned:0,perk:{coin:0,fit:0,to:0},last:null,savedAt:0};
  UT=U;U.opp=utPickOpp();return U;
 }
 function utPickOpp(){const c=utDivs()[UT.div-1].filter(i=>i!==UT.user);return c[Math.floor(Math.random()*c.length)]}
@@ -3448,7 +3462,8 @@ function utHub(){
 }
 function utSetup(){
  return'<div class="cols"><section><h2>Choose your starting club</h2><div class="grid">'+TEAMS.slice(0,NCLUB).map((t,i)=>teamCard(i,i===US.user,'data-a="upick" data-v="'+i+'"',DEFAULT_ROSTERS)).join('')+'</div></section>'+
- '<aside class="side"><div class="card"><h3>Ultimate Team</h3><p style="margin:0">Start with your club\'s squad and 300 coins. Win matches in four divisions to earn coins, then spend them on division packs. Cards come in five rarities: <b>common, uncommon, rare, epic, legendary</b>. Sell players, buy perks and drag your best cards into the lineup to build the dream squad.</p></div>'+
+ '<aside class="side"><div class="card"><h3>Ultimate Team</h3><p style="margin:0">Start with your club\'s squad and 300 coins. Pick a division as your difficulty (Rookie gives you a stronger starting squad, Elite a weaker one) and win matches to earn coins, then spend them on division packs. Cards come in five rarities: <b>common, uncommon, rare, epic, legendary</b>. Sell players, buy perks and drag your best cards into the lineup to build the dream squad.</p></div>'+
+ '<div><h2>Division (difficulty)</h2><div class="seg">'+[1,2,3,4].map(x=>'<button type="button" data-a="udv" data-v="'+x+'" aria-pressed="'+(US.div===x)+'">'+x+' · '+UT_DNAME[x]+'</button>').join('')+'</div><p class="note" style="margin:8px 0 0">'+({1:'Rookie: your squad starts +1.0 stronger. Easy opponents, small coin rewards.',2:'Pro: your squad starts +0.5 stronger.',3:'World Class: your real club squad, no change.',4:'Elite: your squad starts 1.0 weaker, but opponents are the best and coin rewards are the biggest.'})[US.div]+'</p></div>'+
  '<div><h2>Match length</h2>'+segHtml('ulen',US.len,LENS)+'</div><button type="button" class="go" data-a="ustart">Start Ultimate Team</button></aside></div>';
 }
 function utHome(){
@@ -3476,7 +3491,7 @@ function utStore(){
    '<div class="packs"><button type="button" class="pack std" data-a="upack" data-v="'+d+':std"'+(U.coins<UT_PACK[d][0]?' disabled':'')+'><b>Standard pack</b><span>3 players</span><em>◎ '+UT_PACK[d][0]+'</em></button>'+
    '<button type="button" class="pack pre" data-a="upack" data-v="'+d+':pre"'+(U.coins<UT_PACK[d][1]?' disabled':'')+'><b>Premium pack</b><span>5 players · a rare or better guaranteed</span><em>◎ '+UT_PACK[d][1]+'</em></button></div></div>';
  }).join('')+'</div>';
- h+='<div class="card"><h3>Pack odds</h3><p class="note" style="margin:0">Players are pulled only from the clubs of the division you buy from, so a Division 1 pack is full of stars and a Division 4 pack is mostly bargains. Standard: 46% common · 32% uncommon · 15% rare · 6% epic · 1% legendary. Premium has far better odds.</p></div>';
+ h+='<div class="card"><h3>Pack odds</h3><p class="note" style="margin:0">Players are pulled only from the clubs of the division you buy from, so a Division 4 (Elite) pack is full of stars and a Division 1 (Rookie) pack is mostly bargains. Standard: 46% common · 32% uncommon · 15% rare · 6% epic · 1% legendary. Premium has far better odds.</p></div>';
  h+='<div class="card"><h3>Perks</h3><div class="packs">'+Object.keys(UT_PERK).map(k=>{const p=UT_PERK[k];return'<button type="button" class="pack" data-a="uperk" data-v="'+k+'"'+(U.coins<p.c?' disabled':'')+'><b>'+p.n+(U.perk[k]>0?' (×'+U.perk[k]+')':'')+'</b><span>'+p.d+'</span><em>◎ '+p.c+'</em></button>'}).join('')+'</div></div>';
  return h;
 }
@@ -3501,8 +3516,9 @@ function renderUt(){const root=$('#utRoot');root.innerHTML=UT&&UT.squad?utHub():
 function utAction(el){
  const a=el.dataset.a,v=el.dataset.v;
  if(a==='upick'){US.user=+v;accent(US.user);return renderUt()}
+ if(a==='udv'){US.div=+v;return renderUt()}
  if(a==='ulen'){if(UT)UT.len=+v,utSave();else US.len=+v;return renderUt()}
- if(a==='ustart'){utNew(US.user,US.len);utTab='home';UTMSG='';UTCONF=null;utSave();return renderMode()}
+ if(a==='ustart'){utNew(US.user,US.len,US.div);utTab='home';UTMSG='';UTCONF=null;utSave();return renderMode()}
  const U=UT;if(!U)return;
  if(a!=='usell'&&a!=='ureset')UTCONF=null;
  if(a==='utab'){utTab=v;UTMSG='';if(v!=='store')U.last=null;return renderUt()}
@@ -3999,7 +4015,7 @@ function netSend(now){
  const P=G.players,ix=new Map(P.map((p,i)=>[p,i])),b=G.ball,R=G.rs,gc=GUEST;
  const pl=P.map(p=>{const c=p.cel;return[Math.round(p.x),Math.round(p.y),Math.round(p.face*100),Math.round(p.vx),Math.round(p.vy),
   Math.round((p.kickAnim||0)*100),Math.round((p.throwAnim||0)*100),Math.round((p.slide||0)*100),Math.round((p.slideRec||0)*100),
-  p.sdx!==undefined?Math.round(Math.atan2(p.sdy,p.sdx)*100):0,c?(Math.max(0,CELK.indexOf(c.kind))+(c.run?10:0)+(c.lead?20:0)):-1,c?Math.round(c.t*100):0]});
+  p.sdx!==undefined?Math.round(Math.atan2(p.sdy,p.sdx)*100):0,c?(Math.max(0,CELK.indexOf(c.kind))+(c.run?10:0)+(c.lead?20:0)):-1,c?Math.round(c.t*100):0,p.dive?p.dive.sy*Math.round(100*p.dive.t+1):0]});
  const snap={q:++NET.seq,st:G.state,tr:r2(G.timer),tm:Math.round(G.time*10)/10,sc:G.score,ot:G.ot?1:0,it:r2(G.intro),sh:Math.round(G.shake*10)/10,
   pl,b:[Math.round(b.x),Math.round(b.y),Math.round(b.z),Math.round(b.vx),Math.round(b.vy),Math.round(b.spin*10),b.owner?ix.get(b.owner):-1],
   rs:R?[R.type,R.team,ix.get(R.taker),R.thrown?1:0,Math.round(R.x),Math.round(R.y)]:0,
@@ -4027,6 +4043,7 @@ function netApply(s){
   p.kickAnim=a[5]/100;p.throwAnim=a[6]/100;p.slide=a[7]/100;p.slideRec=a[8]/100;
   const sa=a[9]/100+Math.PI;p.sdx=Math.cos(sa);p.sdy=Math.sin(sa);
   const c=a[10];
+  if(a[12]){if(!p.dive)p.dive={dur:.5,rec:.65,sy:a[12]>0?1:-1,t:Math.abs(a[12])/100};}else p.dive=null;
   if(c<0)p.cel=null;else{if(!p.cel)p.cel={};p.cel.kind=CELK[c%10];p.cel.run=(c%20)>=10;p.cel.lead=c>=20;p.cel.t=a[11]/100}
  });
  const b=G.ball,sb=s.b,bx=PW-sb[0],by=PH-sb[1];
@@ -4052,6 +4069,7 @@ function guestTick(dt){
    let d=p.nf-p.face;d=Math.atan2(Math.sin(d),Math.cos(d));p.face+=d*Math.min(1,k*1.2);}
   p.phase+=Math.hypot(p.vx,p.vy)*dt*.09;
   if(p.cel)p.cel.t+=dt;
+  if(p.dive)p.dive.t+=dt;
   p.kickAnim=Math.max(0,(p.kickAnim||0)-dt);p.throwAnim=Math.max(0,(p.throwAnim||0)-dt);
   p.slide=Math.max(0,(p.slide||0)-dt);p.slideRec=Math.max(0,(p.slideRec||0)-dt);
  }
