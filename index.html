@@ -205,8 +205,8 @@ select{font:inherit;color:var(--ink);background:var(--panel2);border:2px solid v
 .pc.luok{outline:3px solid #2fe27a;outline-offset:2px}.pc.lusel{outline:3px solid #ffe600;outline-offset:2px}.pc.lufrom{opacity:.35}
 .pc.lughost{position:fixed;z-index:300;pointer-events:none;opacity:.92;transform:rotate(-4deg) scale(1.06);box-shadow:0 14px 30px rgba(0,0,0,.6)}
 .pce{position:absolute;left:12%;right:12%;bottom:3.5%;height:5px;border-radius:3px;background:rgba(0,0,0,.32);overflow:hidden}.pce i{display:block;height:100%;border-radius:3px}
-.xipitch.wide{aspect-ratio:2/1;max-width:none}.wide .xilines::before{left:50%;right:auto;top:0;bottom:0;border-top:0;border-left:2px solid rgba(255,255,255,.7)}.wide .slot{width:14%}
-.tolay{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;align-items:start}.tolay .benchrow{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;max-height:52vh;overflow-y:auto;padding:2px}@media(max-width:760px){.tolay{grid-template-columns:1fr}.tolay .benchrow{max-height:30vh}}
+.tolay .xipitch{height:calc(100vh - 215px);min-height:300px;width:auto;aspect-ratio:3/4.3;max-width:none;margin:0}
+.tolay{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:start}.tolay .benchrow{grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;max-height:calc(100vh - 235px);overflow-y:auto;padding:2px}@media(max-width:760px){.tolay{grid-template-columns:1fr}.tolay .xipitch{height:56vh;margin:0 auto}.tolay .benchrow{max-height:none}}
 .tobox{background:#0e1530;border:1px solid var(--line);border-radius:16px;padding:18px;max-width:1080px;width:100%;max-height:96vh;overflow:auto}
 .tobox h2{margin:0 0 4px}.tobox .note{margin:0 0 12px}
 .xipitch{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:3/4.3;border-radius:14px;overflow:hidden;background:repeating-linear-gradient(0deg,#2f9e4f 0 12.5%,#2a9147 12.5% 25%);border:3px solid #fff;box-shadow:0 10px 30px rgba(0,0,0,.4)}
@@ -2949,11 +2949,11 @@ function doSub(bid,sid){
 }
 function toHtml(){
  const ti=G.teams[0].ti,t=TEAMS[ti],ro=ROSTERS[ti],on=G.players.filter(p=>p.team===0).sort((a,b)=>a.idx-b.idx);
- const pos=[[9,50],[30,27],[30,73],[58,27],[58,73],[84,50]],F={goals:{}};
+ const pos=[[50,88],[27,67],[73,67],[27,43],[73,43],[50,16]],F={goals:{}};
  const cards=on.map((p,i)=>'<div class="slot" style="left:'+pos[i][0]+'%;top:'+pos[i][1]+'%">'+cardHtml({id:p.pid,name:p.name,pos:p.role,r:p.rt,num:p.num},t,F,0,'xi',p.fat||0)+'</div>').join('');
  const ids=new Set(on.map(p=>p.pid));
  const bench=ro.filter(p=>!ids.has(p.id)&&String(p.id)[0]!=='x').sort((a,b)=>POSORD[a.pos]-POSORD[b.pos]||b.r-a.r).map(p=>cardHtml(p,t,F,0,'bn',G.fatBank[p.id]||0)).join('');
- return'<div class="tobox"><h2>Timeout</h2><p class="note">Players get slower and weaker as the match goes on (the bar under each card is their energy). Drag a bench player onto a tired starter in the same position, or tap one then the other.</p><div data-lu="to" class="tolay"><div class="xipitch wide"><div class="xilines"></div>'+cards+'</div><div>'+(bench?'<h3 style="margin:0 0 8px">Bench</h3><div class="benchrow">'+bench+'</div>':'<p class="note">No one on the bench.</p>')+'</div></div><button type="button" class="go" id="toGo" style="margin-top:16px">Resume match</button></div>';
+ return'<div class="tobox"><h2>Timeout</h2><p class="note">Players get slower and weaker as the match goes on (the bar under each card is their energy). Drag a bench player onto a tired starter in the same position, or tap one then the other.</p><div data-lu="to" class="tolay"><div class="xipitch"><div class="xilines"></div>'+cards+'</div><div>'+(bench?'<h3 style="margin:0 0 8px">Bench</h3><div class="benchrow">'+bench+'</div>':'<p class="note">No one on the bench.</p>')+'</div></div><button type="button" class="go" id="toGo" style="margin-top:16px">Resume match</button></div>';
 }
 function renderTimeout(){const o=document.getElementById('toov');if(!o)return;o.innerHTML=toHtml();o.querySelector('#toGo').onclick=closeTimeout}
 function openTimeout(){
