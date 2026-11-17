@@ -1671,6 +1671,10 @@ function gkSave(g,sp){
 }
 function tackleAll(){
  const b=G.ball,o=b.owner;if(!o||G.protect>0)return;
+ if(!o.isGK&&G.state==='play')for(const g of G.players){
+  if(!g.isGK||g.team===o.team||g.stun>0)continue;
+  if(dist(g,b)<PR+BR+10||dist(g,o)<PR*2+6){o.stun=.5;o.kickCD=.6;gkCatch(g);return}
+ }
  for(const p of G.players){
   if(p.team===o.team||p.tackleCD>0)continue;
   if(p.ctrl&&!G.demo&&!act.pass&&false)continue;
