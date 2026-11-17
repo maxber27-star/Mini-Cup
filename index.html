@@ -3386,7 +3386,7 @@ function wireWc(){
 /* ---------- ULTIMATE TEAM ---------- */
 const UTK='minicup.ut.v1',UT_RAR=[['common','Common'],['uncommon','Uncommon'],['rare','Rare'],['epic','Epic'],['legendary','Legendary']];
 const rarIdx=r=>r>=5?4:r>=4.5?3:r>=4?2:r>=3?1:0;
-const UT_PACK=[250,700],UT_MODES={rookie:{n:'Rookie',diff:'easy',win:90,d:'Start with your club\'s full starting squad. Matches are on easy.'},pro:{n:'Pro',diff:'normal',win:120,d:'Start with a few good players and the rest average. Matches are on medium.'},allstar:{n:'All Star',diff:'hard',win:170,d:'Start with all bad players. Matches are on hard, but wins pay the most coins.'}};
+const UT_PACK=[250,700],UT_MODES={rookie:{n:'Rookie',diff:'easy',win:170,d:'Start with your club\'s full starting squad. Matches are on easy, and wins pay the most coins.'},pro:{n:'Pro',diff:'normal',win:120,d:'Start with a few good players and the rest average. Matches are on medium.'},allstar:{n:'All Star',diff:'hard',win:70,d:'Start with all bad players. Matches are on hard, and wins pay the fewest coins.'}};
 const UT_ODDS={std:[46,32,15,6,1],pre:[8,28,36,22,6],fix:[0,0,65,27,8]};
 const UT_PERK={coin:{n:'Coin boost',d:'+50% coins from your next 3 matches',c:200,k:3},fit:{n:'Pro fitness',d:'Your players tire half as fast for 3 matches',c:160,k:3},to:{n:'Extra timeout',d:'A second timeout in your next match',c:120,k:1}};
 const UT_MAX=40;
