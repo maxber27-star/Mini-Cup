@@ -957,6 +957,50 @@ function ctrlFor(team,p){
  if(team===0)setCtrl(p);
  else if(GUEST&&team===1)withCtx(GUEST,()=>setCtrl(p));
 }
+/* real-life looks: skin (p pale, w light, t tan, m medium, b brown, d dark, D deep) + hair (k black, n dark brown, l light brown, y blond, r red, g grey) */
+const SKC={p:'#f6d7b9',w:'#f1c9a5',t:'#d9a077',m:'#c68a5e',b:'#a86b45',d:'#7a4a2c',D:'#5b361f'},HRC={k:'#101018',n:'#3b2416',l:'#6b4a2a',y:'#d8b45a',r:'#8a3a1c',g:'#8a8a96'};
+const LOOKS_RAW={
+'Joan Garcia':'tn','Wojciech Szczesny':'wl','Pau Cubarsí':'tn','Jules Koundé':'bk','Alejandro Balde':'bk','Pedri':'tn','Frenkie de Jong':'wl','Gavi':'tn','Lamine Yamal':'bk','Robert Lewandowski':'wl',
+'Thibaut Courtois':'wn','Andriy Lunin':'wl','Antonio Rüdiger':'dk','Dean Huijsen':'tn','Trent Alexander-Arnold':'bk','Jude Bellingham':'bk','Federico Valverde':'tn','Aurélien Tchouaméni':'dk','Kylian Mbappé':'bk','Vinícius Júnior':'bk',
+'Gianluigi Donnarumma':'wn','James Trafford':'wl','Rúben Dias':'tn','Joško Gvardiol':'wn','John Stones':'wl','Rodri':'tn','Phil Foden':'wy','Bernardo Silva':'tn','Erling Haaland':'wy','Omar Marmoush':'tk',
+'Lucas Chevalier':'wn','Matvey Safonov':'wl','Achraf Hakimi':'bk','Marquinhos':'bk','Nuno Mendes':'dk','Vitinha':'tn','João Neves':'tn','Fabián Ruiz':'tn','Ousmane Dembélé':'bk','Bradley Barcola':'bk',
+'Manuel Neuer':'wl','Jonas Urbig':'wn','Dayot Upamecano':'dk','Jonathan Tah':'wn','Alphonso Davies':'dk','Joshua Kimmich':'wl','Jamal Musiala':'bk','Michael Olise':'bk','Harry Kane':'wl','Luis Díaz':'mk',
+'Altay Bayindir':'tk','André Onana':'dk','Lisandro Martínez':'tk','Matthijs de Ligt':'wl','Leny Yoro':'bk','Bruno Fernandes':'tn','Kobbie Mainoo':'bk','Casemiro':'tn','Bryan Mbeumo':'dk','Matheus Cunha':'tn',
+'Alisson Becker':'tk','Alisson':'tk','Giorgi Mamardashvili':'wn','Virgil van Dijk':'bk','Ibrahima Konate':'dk','Milos Kerkez':'wn','Florian Wirtz':'wn','Dominik Szoboszlai':'wn','Ryan Gravenberch':'bk','Mohamed Salah':'tk','Alexander Isak':'bk',
+'David Raya':'tn','Kepa Arrizabalaga':'tn','William Saliba':'bk','Gabriel Magalhães':'bk','Ben White':'wn','Martin Ødegaard':'wl','Declan Rice':'wn','Martín Zubimendi':'tn','Bukayo Saka':'dk','Viktor Gyökeres':'wn',
+'Robert Sánchez':'tn','Filip Jørgensen':'wl','Levi Colwill':'wl','Wesley Fofana':'dk','Reece James':'bk','Enzo Fernández':'tn','Cole Palmer':'bk','Moisés Caicedo':'mk','João Pedro':'bk','Pedro Neto':'tn',
+'Michele Di Gregorio':'tn','Mattia Perin':'wn','Gleison Bremer':'bk','Federico Gatti':'wn','Andrea Cambiaso':'tn','Manuel Locatelli':'tn','Teun Koopmeiners':'wl','Khephren Thuram':'bk','Kenan Yıldız':'tk','Dušan Vlahović':'wn',
+'Mike Maignan':'bk','Pietro Terracciano':'wn','Fikayo Tomori':'dk','Strahinja Pavlović':'wn','Davide Bartesaghi':'wn','Luka Modrić':'wl','Adrien Rabiot':'wl','Youssouf Fofana':'dk','Rafael Leão':'bk','Christian Pulisic':'wn',
+'Gregor Kobel':'wn','Alexander Meyer':'wl','Nico Schlotterbeck':'wn','Waldemar Anton':'wn','Ramy Bensebaini':'tk','Julian Brandt':'wl','Felix Nmecha':'bk','Pascal Gross':'wl','Serhou Guirassy':'dk','Karim Adeyemi':'bk',
+'Jan Oblak':'wn','Juan Musso':'tn','José María Giménez':'tn','Robin Le Normand':'tn','Marcos Llorente':'tn','Koke':'tn','Pablo Barrios':'tn','Conor Gallagher':'wl','Julián Álvarez':'tn','Antoine Griezmann':'wy',
+'Rocco Ríos Novo':'tn','Óscar Ustari':'tn','Jordi Alba':'tn','Tomás Avilés':'tn','Maximiliano Falcón':'tn','Rodrigo De Paul':'tn','Telasco Segovia':'tn','Benjamin Cremaschi':'tn','Lionel Messi':'wl','Luis Suárez':'tn',
+'Novak Micovic':'wn','John McCarthy':'wn','Maya Yoshida':'pk','Emiro Garcés':'mk','Jalen Neal':'bk','Riqui Puig':'tn','Marco Reus':'wl','Diego Fagúndez':'tn','Gabriel Pec':'bk','Joseph Paintsil':'dk',
+'Remko Pasveer':'wn','Vítězslav Jaroš':'wn','Josip Šutalo':'wn','Anton Gaaei':'wl','Youri Baas':'bk','Kenneth Taylor':'wl','Jordan Henderson':'wl','Davy Klaassen':'wl','Mika Godts':'wl','Wout Weghorst':'wy',
+'Ederson':'tk','Danilo':'bk','Bruno Guimaraes':'tk','Lucas Paqueta':'mk','Raphinha':'bk',
+'Moïse Bombito':'dk','Ismaël Koné':'dk','Jonathan David':'dk','Cyle Larin':'dk','Alistair Johnston':'wl','Stephen Eustáquio':'tn','Jonathan Osorio':'tn',
+'Breel Embolo':'dk','Denis Zakaria':'bk','Dan Ndoye':'bk','Manuel Akanji':'bk',
+'Che Adams':'bk','Chris Richards':'bk','Antonee Robinson':'bk','Sergino Dest':'bk','Tyler Adams':'bk','Weston McKennie':'wl','Yunus Musah':'bk','Folarin Balogun':'bk',
+'Nestory Irankunda':'dk','Aziz Behich':'tn','Leroy Sane':'bk',
+'Jürgen Locadia':'dk','Tahith Chong':'bk','Denzel Dumfries':'bk','Nathan Aké':'bk','Cody Gakpo':'bk','Memphis Depay':'bk',
+'Isak Hien':'bk','Victor Lindelöf':'wn','Dejan Kulusevski':'wn','Gabriel Gudmundsson':'wn',
+'Kevin De Bruyne':'wy','Romelu Lukaku':'dk','Jérémy Doku':'bk','Amadou Onana':'dk','Sarpreet Singh':'tk',
+'Marc Cucurella':'tn','Dani Carvajal':'tn','Nico Williams':'dk',
+'Brice Samba':'dk','Theo Hernández':'tk',"N'Golo Kanté":'dk','Eduardo Camavinga':'dk',
+'Kristoffer Ajer':'wy','Alexander Sørloth':'wy','Ørjan Nyland':'wn',
+'Cristian Romero':'tn','Alexis Mac Allister':'tn','Lautaro Martínez':'tn','Emiliano Martínez':'tn',
+'Kevin Danso':'bk','Cristiano Ronaldo':'tn','João Cancelo':'tn','Diogo Costa':'tn',
+'James Rodríguez':'tn','Jefferson Lerma':'bk','David Ospina':'tk',
+'Marc Guehi':'bk','Iñaki Williams':'bk','Kamaldeen Sulemana':'bk'
+};
+const NATLOOK={MEX:'mk',RSA:'dk',KOR:'pk',CZE:'wn',CAN:'wn',BIH:'wn',QAT:'tk',SUI:'wn',BRA:'mk',MAR:'tk',HAI:'dk',SCO:'wn',USA:'wn',PAR:'mk',AUS:'wn',TUR:'tk',GER:'wn',CUW:'dk',CIV:'dk',ECU:'mk',NED:'wn',JPN:'pk',SWE:'wy',TUN:'tk',BEL:'wn',EGY:'tk',IRN:'tk',NZL:'wn',ESP:'tn',CPV:'bk',KSA:'tk',URU:'tn',FRA:'wn',SEN:'dk',NOR:'wy',IRQ:'tk',ARG:'tn',ALG:'tk',AUT:'wn',JOR:'tk',POR:'tn',COD:'dk',UZB:'tk',COL:'mk',ENG:'wn',CRO:'wn',GHA:'dk',PAN:'mk'};
+let LOOKS=null;
+function lookOf(name){
+ if(!LOOKS){LOOKS={};for(const k in LOOKS_RAW)LOOKS[k]=LOOKS_RAW[k];
+  for(let i=NCLUB;i<TEAMS.length;i++){const c=NATLOOK[TEAMS[i].short];if(c)for(const p of DEFAULT_ROSTERS[i])if(!LOOKS[p.name])LOOKS[p.name]=c}}
+ const c=LOOKS[name];return c?{skin:SKC[c[0]],hair:HRC[c[1]]}:null;
+}
+function applyLook(p){const L=lookOf(p.name);if(L){p.skin=L.skin;p.hair=L.hair}}
+
 /* ---------- setup ---------- */
 function makePlayers(){
  G.players=[];
@@ -965,7 +1009,7 @@ function makePlayers(){
    kickCD:0,tackleCD:0,stun:0,runTo:null,runT:0,decT:rnd(0,.3),holdT:0,phase:Math.random()*6,plan:'shape',ctrl:false,
    skin:SKINS[(i*3+t*5)%SKINS.length],hair:HAIR[(i*5+t*2)%HAIR.length],tx:0,ty:0,sprint:1});
  });
-for(let t=0;t<2;t++){const sl=startersOf(G.teams[t].ti);G.players.filter(p=>p.team===t).forEach(p=>{const pl=sl[p.idx];p.pid=pl.id;p.name=pl.name;p.rt=pl.r;p.num=pl.num;p.label=shortName(pl.name);Object.assign(p,modsOf(pl.r))})}
+for(let t=0;t<2;t++){const sl=startersOf(G.teams[t].ti);G.players.filter(p=>p.team===t).forEach(p=>{const pl=sl[p.idx];p.pid=pl.id;p.name=pl.name;p.rt=pl.r;p.num=pl.num;p.label=shortName(pl.name);Object.assign(p,modsOf(pl.r));applyLook(p)})}
  G.ball={x:PW/2,y:PH/2,z:0,vx:0,vy:0,vz:0,owner:null,last:null,passTarget:null,passT:0,passTeam:-1,land:null,spin:0,trail:[],kickId:1,gkDone:{},ghost:-1};
  G.to=false;G.inTO=false;G.fatBank={};G.ctrl=null;G.rtgP=RTGPID?G.players.find(p=>p.team===0&&p.pid===RTGPID)||null:null;G.rtgStat={g:0,a:0};
 }
@@ -2901,7 +2945,7 @@ function cardStats(p){
  return['PAC','SHO','PAS','DRI','DEF','PHY'].map((n,i)=>[n,Math.max(20,Math.min(99,base+w[i]+j(i)))]);
 }
 function faceSvg(p,t){
- const h=hsh(p.id+'f'),sk=SKINS[h%SKINS.length],hr=HAIR[(h>>3)%HAIR.length],st=(h>>6)%3;
+ const h=hsh(p.id+'f'),L=lookOf(p.name),sk=L?L.skin:SKINS[h%SKINS.length],hr=L?L.hair:HAIR[(h>>3)%HAIR.length],st=(h>>6)%3;
  const hair=st===0?'<path d="M30 30c-2-14 8-20 20-20s22 6 20 20c-6-8-14-10-20-10s-14 2-20 10z" fill="'+hr+'"/>':st===1?'<path d="M29 34c-4-20 8-26 21-26s25 6 21 26c-3-9-8-14-21-14s-18 5-21 14z" fill="'+hr+'"/>':'<path d="M31 27c3-12 12-16 19-16s16 4 19 16c-8-5-13-6-19-6s-11 1-19 6z" fill="'+hr+'"/>';
  return'<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M8 100c2-22 18-30 42-30s40 8 42 30z" fill="'+t.c+'"/><path d="M38 70l12 12 12-12z" fill="'+t.c2+'"/><rect x="43" y="56" width="14" height="18" rx="5" fill="'+sk+'"/><ellipse cx="50" cy="40" rx="19" ry="22" fill="'+sk+'"/>'+hair+'<circle cx="43" cy="42" r="1.9" fill="#222"/><circle cx="57" cy="42" r="1.9" fill="#222"/><path d="M43 51q7 5 14 0" stroke="#7a2e2e" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
 }
@@ -2944,7 +2988,7 @@ function doSub(bid,sid){
  const p=G.players.find(q=>q.team===0&&q.pid===sid),ro=ROSTERS[G.teams[0].ti],b=ro.find(x=>x.id===bid);
  if(!p||!b||b.pos!==p.role)return false;
  G.fatBank[p.pid]=p.fat||0;
- p.pid=b.id;p.name=b.name;p.rt=b.r;p.num=b.num;p.label=shortName(b.name);Object.assign(p,modsOf(b.r));p.fat=G.fatBank[b.id]||0;
+ p.pid=b.id;p.name=b.name;p.rt=b.r;p.num=b.num;p.label=shortName(b.name);Object.assign(p,modsOf(b.r));applyLook(p);p.fat=G.fatBank[b.id]||0;
  return true;
 }
 function toHtml(){
@@ -4091,7 +4135,7 @@ function netSendInput(now){
  ROOM.presence({i:Object.assign({},inp)}).catch(()=>{});
 }
 
-window.__striker={doShoot,get UT(){return UT},DEFAULT_ROSTERS,TEAMS,teamRatings,startCelebration,G,update,startMatch,press,release,draw,launchMatch,sel,resize,get FR(){return FR},set FR(v){FR=v},get MODE(){return MODE},set MODE(v){MODE=v},renderMode,frAction,finishUser,save,sfx,startRestart,startSlide,OL,get NET(){return NET},get GUEST(){return GUEST},netSend,netApply,guestTick,launchOnline,olConnect,mkCtx,callFoul,goal,get AC(){return AC}};
+window.__striker={lookOf,doShoot,get UT(){return UT},DEFAULT_ROSTERS,TEAMS,teamRatings,startCelebration,G,update,startMatch,press,release,draw,launchMatch,sel,resize,get FR(){return FR},set FR(v){FR=v},get MODE(){return MODE},set MODE(v){MODE=v},renderMode,frAction,finishUser,save,sfx,startRestart,startSlide,OL,get NET(){return NET},get GUEST(){return GUEST},netSend,netApply,guestTick,launchOnline,olConnect,mkCtx,callFoul,goal,get AC(){return AC}};
 init();
 
 
