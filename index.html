@@ -1975,10 +1975,11 @@ function etClose(){const o=document.getElementById('etOv');if(o)o.remove();windo
 function etPick(a){
  if(G.state!=='et')return;
  etClose();
- if(a==='g')etGolden();else if(a==='p')etPens();else etExtra(+a);
+ if(a==='d'){G.winner=-1;G.state='full';sfx('whistle');sfx('applause')}
+ else if(a==='g')etGolden();else if(a==='p')etPens();else etExtra(+a);
 }
 function etKey(e){
- const m={Digit1:'1',Digit2:'2',Digit3:'3',Digit4:'g',Digit5:'p',Numpad1:'1',Numpad2:'2',Numpad3:'3',Numpad4:'g',Numpad5:'p'}[e.code];
+ const m={Digit1:'1',Digit2:'2',Digit3:'3',Digit4:'g',Digit5:'p',Digit6:'d',Numpad6:'d',Numpad1:'1',Numpad2:'2',Numpad3:'3',Numpad4:'g',Numpad5:'p'}[e.code];
  if(m){e.preventDefault();e.stopPropagation();etPick(m)}
 }
 function etChoose(){
@@ -1995,13 +1996,15 @@ function etChoose(){
  +['1','2','3'].map(m=>'<button data-et="'+m+'" style="'+chip+'">'+m+' min<br><span style="font-weight:500;font-size:11px;color:#9ba8d6">key '+m+'</span></button>').join('')+'</div>'
  +'<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">'
  +'<button data-et="g" style="'+bt+';flex:1 1 200px">Golden goal<br><span style="font-weight:500;font-size:11px;opacity:.85">first goal wins · key 4</span></button>'
- +'<button data-et="p" style="'+bt+';flex:1 1 200px">Penalty kicks<br><span style="font-weight:500;font-size:11px;opacity:.85">shootout now · key 5</span></button></div></div>';
+ +'<button data-et="p" style="'+bt+';flex:1 1 200px">Penalty kicks<br><span style="font-weight:500;font-size:11px;opacity:.85">shootout now · key 5</span></button></div>'
+ +(G.needWinner?'':'<button data-et="d" style="'+chip+';width:auto;padding:10px 22px;margin-top:12px">Keep the draw <span style="font-weight:500;font-size:11px;color:#9ba8d6">· key 6</span></button>')+'</div>';
  o.addEventListener('click',e=>{const b=e.target.closest('[data-et]');if(b)etPick(b.dataset.et)});
  document.body.appendChild(o);
  window.addEventListener('keydown',etKey,true);
 }
 function endRegulation(){
- if(G.needWinner&&G.score[0]===G.score[1]){
+ if(!G.needWinner&&G.score[0]===G.score[1]&&!G.etAsked&&pkOK()){G.etAsked=true;G.state='et';sfx('whistle');etChoose();return}
+ if((G.needWinner||G.etAsked)&&G.score[0]===G.score[1]){
   if(!G.ot&&pkOK()&&!G.etAsked){G.etAsked=true;G.state='et';sfx('whistle');etChoose();return}
   if(!G.ot){etGolden();return}
   G.pens=true;
