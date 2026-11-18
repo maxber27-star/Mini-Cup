@@ -1041,7 +1041,7 @@ function startMatch(u,o,diff,len,demo){
 }
 function setCtrl(p){
  if(G.rtgP&&p&&p.team===G.rtgP.team)p=G.rtgP;
- if(G.ctrl&&G.ctrl!==p)G.ctrl.ctrl=false;
+ if(G.ctrl&&G.ctrl!==p){G.ctrl.ctrl=false;if(p){G.stam=1;G.exh=false}}
  G.ctrl=p;if(p)p.ctrl=true;
 }
 function aiOf(p){return p.team===1&&!G.online?DIFF[G.diff]:DIFF.normal}
