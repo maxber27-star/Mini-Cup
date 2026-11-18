@@ -1582,6 +1582,7 @@ function movePlayers(dt,live){
    const dx=p.tx-p.x,dy=p.ty-p.y,d=Math.hypot(dx,dy);
    if(d>4){const sp=Math.min(base*p.sprint,d*5);wx=dx/d*sp;wy=dy/d*sp}
   }
+  {const rs=G.rs;if(rs&&p===rs.taker&&!rs.kicked&&!p.isGK&&(rs.type==='corner'||rs.type==='throw'||rs.type==='free')&&G.state!=='goal'){wx=wy=0}}
   if(p.stun>0){wx*=.25;wy*=.25}
   if(p.cel&&p.cel.sv>0){wx=p.cel.sdx*p.cel.sv;wy=p.cel.sdy*p.cel.sv}
   if(p.dive){const dv=p.dive;if(dv.t<dv.dur){wx=dv.vx;wy=dv.vy}else{wx=wy=0}}
