@@ -2642,7 +2642,7 @@ function doTrade(F,myId,theirTi,theirId){
 let cv,ctx,stage,ready=false;
 const view={scale:1};
 let CT=Math.cos(TILT),ST=Math.sin(TILT);const ANCHOR=.54;
-const CAMS=[{n:'Broadcast',z:1.8,t:55},{n:'Wide',z:1.3,t:55},{n:'Tactical',z:1.45,t:76},{n:'Close-up',z:2.5,t:42},{n:'Low sideline',z:2.0,t:30}];
+const CAMS=[{n:'Broadcast',z:1.8,t:55},{n:'Wide',z:1.3,t:55},{n:'Tactical',z:1.45,t:76},{n:'Close-up',z:2.5,t:42},{n:'Low sideline',z:2.0,t:30},{n:'Top-down',z:1.35,t:88}];
 let camIdx=Math.max(0,Math.min(CAMS.length-1,S.cam|0));
 function camApply(){const c=CAMS[camIdx];ZOOM=c.z;CT=Math.cos(c.t*Math.PI/180);ST=Math.sin(c.t*Math.PI/180)}
 function camNext(){camIdx=(camIdx+1)%CAMS.length;camApply();S.cam=camIdx;saveSet();G.camToast=G.t;if(G.cam)updateCam(0,true)}
