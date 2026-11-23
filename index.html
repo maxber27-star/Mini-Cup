@@ -1151,7 +1151,7 @@ function bestPass(p,fromGK){
   if(t.isGK&&!(p.x*dir<PW*.3&&!fromGK))continue;
   if(t.isGK)continue;
   const d=dist(p,t);if(d<70||d>560)continue;
-  if(offsideOn()&&isOffsideNow(p,t))continue;
+  if(offsideOn()&&isOffsideNow(p,t)&&!t.ctrl&&t!==G.rtgP)continue;
   const progress=((t.x-p.x)*dir)/300,o=openness(t),clear=laneClear(p,t);
   let s=progress+o*.9-d/1000+(t.role==='FWD'?.2:0)+(t===G.rtgP?.4:0)+rnd(0,.15),kind='ground';
   if(!clear){if(d>190){kind='lob';s-=.15}else s-=.6}
@@ -3006,6 +3006,15 @@ function drawWorld(){
  if(live){
   const q=P(c.x,c.y,0),s=q[2],bob=Math.sin(G.t*8)*2.5*s,ay=P(c.x,c.y,50)[1]+bob;
   ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(q[0],ay);ctx.lineTo(q[0]-7*s,ay-11*s);ctx.lineTo(q[0]+7*s,ay-11*s);ctx.closePath();ctx.fill();
+  if(offsideOn()&&G.state==='play'&&c&&!c.isGK){
+   const dir=teamDir(c.team),a=x=>x*dir,b2=G.ball,mine=(b2.owner&&b2.owner.team===c.team)||(!b2.owner&&b2.last&&b2.last.team===c.team);
+   const opp=G.players.filter(o=>o.team!==c.team).map(o=>a(o.x)).sort((m,n)=>n-m),line=Math.max(a(b2.x),opp.length>1?opp[1]:opp[0]||0);
+   if(mine&&a(c.x)>PW/2*.9){
+    const lx=dir===1?line:PW-line,A=P(lx,0,0),B=P(lx,PH,0);
+    ctx.save();ctx.setLineDash([10*A[2],8*A[2]]);ctx.strokeStyle='rgba(255,230,0,.55)';ctx.lineWidth=2*A[2];ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);ctx.stroke();ctx.restore();
+    if(a(c.x)>line+8&&a(c.x)>PW/2)textC('OFFSIDE POSITION',q[0],P(c.x,c.y,50)[1]-30*s,"700 "+Math.round(15*s)+"px 'Barlow Semi Condensed',system-ui,sans-serif",'#ff5a5a','#0a0f24',4);
+   }
+  }
   if(G.stam<.995||G.sprintOn){
    const w=40*s;ctx.fillStyle='rgba(5,10,30,.8)';rr(ctx,q[0]-w/2-2*s,q[1]+17*s,w+4*s,8*s,4*s);ctx.fill();
    ctx.fillStyle=G.exh?'#ff5a5a':'#19c8ff';rr(ctx,q[0]-w/2,q[1]+19*s,Math.max(3*s,w*G.stam),4*s,2*s);ctx.fill();
