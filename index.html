@@ -1056,7 +1056,9 @@ function kickBall(p,ux,uy,speed,vz,target,passT,power){
  b.vx=ux*speed;b.vy=uy*speed;b.vz=vz||0;
  if(b.kl!==p){b.kl2=b.kl;b.kl2t=b.klt}b.kl=p;b.klt=G.t;
  b.last=p;b.passTarget=target||null;b.passT=target?(passT||1.4):0;b.passTeam=p.team;b.land=null;b.kickId++;b.ghost=-1;
- p.kickCD=.35;p.kickAnim=.18;if(G.rs&&p===G.rs.taker)G.rs.kicked=true;
+ p.kickCD=.35;p.kickAnim=.18;
+ b.offs=null;if(offsideOn()&&!(G.rs&&p===G.rs.taker&&['goalkick','throw','corner'].includes(G.rs.type))){const os=offsideSet(p);if(os.size){b.offs=os;b.offsTeam=p.team}}
+ if(G.rs&&p===G.rs.taker)G.rs.kicked=true;
  if(G.rs&&G.rs.type==='throw'&&p===G.rs.taker&&!G.rs.thrown){G.rs.thrown=true;p.throwAnim=.42;p.kickAnim=0;b.z=42;b.vz=30;b.vx*=.85;b.vy*=.85}p.face=Math.atan2(uy,ux);
  sfx(G.kk||'pass',power||0);G.kk=null;spawnDust(b.x,b.y,4);
 }
@@ -1149,6 +1151,7 @@ function bestPass(p,fromGK){
   if(t.isGK&&!(p.x*dir<PW*.3&&!fromGK))continue;
   if(t.isGK)continue;
   const d=dist(p,t);if(d<70||d>560)continue;
+  if(offsideOn()&&isOffsideNow(p,t))continue;
   const progress=((t.x-p.x)*dir)/300,o=openness(t),clear=laneClear(p,t);
   let s=progress+o*.9-d/1000+(t.role==='FWD'?.2:0)+(t===G.rtgP?.4:0)+rnd(0,.15),kind='ground';
   if(!clear){if(d>190){kind='lob';s-=.15}else s-=.6}
@@ -1502,6 +1505,24 @@ function slideCheck(p){
   p.slideHit=true;b.vx=p.sdx*300;b.vy=p.sdy*300;b.last=p;b.passT=0;b.passTarget=null;sfx('pass',.3);
  }
 }
+/* ---------- offside ---------- */
+function offsideOn(){return !G.demo&&!NET&&!G.online}
+function isOffsideNow(kicker,t,bx){
+ const dir=teamDir(kicker.team),a=x=>x*dir,opp=G.players.filter(q=>q.team!==kicker.team).map(q=>a(q.x)).sort((m,n)=>n-m);
+ const line=Math.max(a(bx==null?kicker.x:bx),opp.length>1?opp[1]:opp[0]||0);
+ return !t.isGK&&a(t.x)>line+8&&a(t.x)>PW/2;
+}
+function offsideSet(kicker){
+ const set=new Set();
+ for(const t of G.players)if(t.team===kicker.team&&t!==kicker&&isOffsideNow(kicker,t))set.add(t);
+ return set;
+}
+function callOffside(p){
+ if(G.state!=='play')return;
+ const b=G.ball;b.offs=null;
+ const other=1-p.team;
+ startRestart('free',other,p.x,p.y);G.offside=true;
+}
 function callFoul(fouler,victim){
  if(G.state!=='play')return;
  const dir=teamDir(victim.team),atkX=dir===1?PW:0;
@@ -1700,6 +1721,7 @@ function ballUpdate(dt,live){
   }
   const f=Math.exp(-(b.z>1?K_AIR:K_GROUND)*dt);b.vx*=f;b.vy*=f;
   if(b.z===0&&Math.hypot(b.vx,b.vy)<14){b.vx=b.vy=0}
+  if(b.offs&&b.owner)b.offs=null;
   b.x+=b.vx*dt;b.y+=b.vy*dt;
   if(live&&G.state==='play'&&outCheck())return;
   walls(b);posts(b);
@@ -1711,6 +1733,10 @@ function ballUpdate(dt,live){
      if(p.isGK||p.kickCD>0||p.stun>0)continue;
      const d=dist(p,b)-(p===b.passTarget?5:0);
      if(d<PR+BR+3&&d<cd){cd=d;cand=p}
+    }
+    if(cand&&b.offs){
+     if(b.offsTeam===cand.team&&b.offs.has(cand)){callOffside(cand);return}
+     b.offs=null;
     }
     if(cand){
      const heavy=sp>=280&&Math.random()<clamp((sp-280)/700,0,.45)*(cand===b.passTarget?.75:1);
@@ -2233,6 +2259,7 @@ function outCheck(){
  return false;
 }
 function startRestart(type,team,sx,sy){
+ G.offside=false;if(G.ball)G.ball.offs=null;
  G.state='out';G.timer=1.15;G.pend={type,team};G.pendArgs=[type,team,sx,sy];G.aim.on=false;G.protect=0;sfx('whistle');
 }
 function beginRestart(type,team,sx,sy){
@@ -3069,7 +3096,7 @@ function drawHUD(){
   textC('YOU ATTACK RIGHT  ·  '+(G.demo?'':'Space pass · J shoot'),cx,cy+80,"700 24px 'Barlow Semi Condensed',system-ui,sans-serif",'#fff','#0a0f24',5);
  }
  if((G.state==='restart'&&G.rs)||(G.state==='out'&&G.pend)){
-  const R=G.state==='out'?G.pend:G.rs,T=G.teams[R.team],nm={throw:'THROW-IN',corner:'CORNER KICK',free:'FREE KICK',penalty:'PENALTY'}[R.type]||'GOAL KICK';
+  const R=G.state==='out'?G.pend:G.rs,T=G.teams[R.team],nm={throw:'THROW-IN',corner:'CORNER KICK',free:G.offside?'OFFSIDE!':'FREE KICK',penalty:'PENALTY'}[R.type]||'GOAL KICK';
   ctx.fillStyle='rgba(6,9,26,.82)';rr(ctx,cx-250,cy-150,500,84,16);ctx.fill();ctx.fillStyle=T.c;rr(ctx,cx-250,cy-150,10,84,5);ctx.fill();rr(ctx,cx+240,cy-150,10,84,5);ctx.fill();
   textC(nm,cx,cy-122,"400 38px Bungee,Impact,sans-serif",PAL[Math.floor(G.t*4)%PAL.length],'#0a0f24',6);
   textC(T.name+(R.team===0?'  ·  your ball':''),cx,cy-84,"700 20px 'Barlow Semi Condensed',system-ui,sans-serif",'#fff');
@@ -4783,7 +4810,7 @@ function netSendInput(now){
  ROOM.presence({i:Object.assign({},inp)}).catch(()=>{});
 }
 
-window.__striker={pkStart,pkPress,pkRelease,launchMatch,woEnd,lookOf,doShoot,get UT(){return UT},DEFAULT_ROSTERS,TEAMS,teamRatings,startCelebration,G,update,startMatch,press,release,draw,launchMatch,sel,resize,get FR(){return FR},set FR(v){FR=v},get MODE(){return MODE},set MODE(v){MODE=v},renderMode,frAction,finishUser,save,sfx,startRestart,startSlide,OL,get NET(){return NET},get GUEST(){return GUEST},netSend,netApply,guestTick,launchOnline,olConnect,mkCtx,callFoul,goal,get AC(){return AC}};
+window.__striker={kickBall,isOffsideNow,pkStart,pkPress,pkRelease,launchMatch,woEnd,lookOf,doShoot,get UT(){return UT},DEFAULT_ROSTERS,TEAMS,teamRatings,startCelebration,G,update,startMatch,press,release,draw,launchMatch,sel,resize,get FR(){return FR},set FR(v){FR=v},get MODE(){return MODE},set MODE(v){MODE=v},renderMode,frAction,finishUser,save,sfx,startRestart,startSlide,OL,get NET(){return NET},get GUEST(){return GUEST},netSend,netApply,guestTick,launchOnline,olConnect,mkCtx,callFoul,goal,get AC(){return AC}};
 init();
 
 
