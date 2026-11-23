@@ -2859,7 +2859,7 @@ function drawPlayer(p){
  ctx.fillStyle='rgba(0,25,10,.22)';ctx.beginPath();ctx.ellipse(sx+s,sy+.5*s,7.5*s,3.4*s,0,0,TAU);ctx.fill();
  if(p.dive){const dv=p.dive,tt=dv.t,fly=tt<dv.dur;hop+=fly?Math.sin(Math.PI*Math.min(1,tt/dv.dur))*24:0;arm=fly?3:1}
  ctx.save();ctx.translate(sway*s,-hop*k);
- {const dv=p.dive;if(dv){const f=dv.t<dv.dur?Math.min(1,dv.t/.12):Math.max(0,1-(dv.t-dv.dur)/dv.rec*1.1),py=sy-7*k;ctx.translate(sx,sy+dv.sy*7*k*f);ctx.scale(1,dv.sy>0?1-f*.62:1+f*.2);ctx.translate(-sx,-sy-3*k*f)}}
+ {const dv=p.dive;if(dv){const f=dv.t<dv.dur?Math.min(1,dv.t/.12):Math.max(0,1-(dv.t-dv.dur)/dv.rec*1.1),py=sy-7*k;ctx.translate(sx,py);ctx.rotate(dv.sy*1.45*f);ctx.translate(-sx,-py+4*k*f)}}
  {const sl=p.slide||0,sr=p.slideRec||0;if(sl>0||sr>0){const f=sl>0?Math.min(1,(.5-sl)/.09+.15):Math.min(1,sr/.3),dir0=Math.cos(p.sdx!==undefined?Math.atan2(p.sdy,p.sdx):p.face)>=0?1:-1,py=sy-7*k;ctx.translate(sx,py);ctx.rotate(-dir0*1.25*f);ctx.translate(-sx,-py+5*k*f)}}
  const hipY=sy-(21-crouch)*k,legs=[];
  for(const sg of[-1,1]){
