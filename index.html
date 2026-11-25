@@ -710,9 +710,9 @@ const G={state:'menu',paused:false,t:0,time:120,len:120,score:[0,0],teams:[TEAMS
 
 
 /* ---------- settings ---------- */
-const ACTS=[['up','Move up'],['down','Move down'],['left','Move left'],['right','Move right'],['sprint','Sprint'],['pass','Pass / tackle (hold = slide)'],['lob','Lob pass'],['thr','Through ball'],['shoot','Shoot (hold to charge)'],['sw','Switch player'],['to','Timeout / substitutions'],['pause','Pause'],['call','Call for a pass (Road to Glory)'],['cam','Change camera angle']];
+const ACTS=[['up','Move up'],['down','Move down'],['left','Move left'],['right','Move right'],['sprint','Sprint'],['pass','Pass / tackle (hold = slide)'],['lob','Lob pass'],['thr','Through ball'],['shoot','Shoot (hold to charge)'],['sw','Switch player'],['to','Timeout / substitutions'],['pause','Pause'],['call','Call for a pass (Road to Glory)'],['cam','Change camera angle'],['skill','Skill move (dribble trick)']];
 const MOVEA={up:1,down:1,left:1,right:1,sprint:1};
-const DEFKEYS={up:['KeyW','ArrowUp'],down:['KeyS','ArrowDown'],left:['KeyA','ArrowLeft'],right:['KeyD','ArrowRight'],sprint:['ShiftLeft','ShiftRight'],pass:['Space',''],lob:['KeyL',''],thr:['KeyK',''],shoot:['KeyJ',''],sw:['KeyM',''],to:['KeyT',''],pause:['KeyP','Escape'],call:['KeyF',''],cam:['KeyC','']};
+const DEFKEYS={up:['KeyW','ArrowUp'],down:['KeyS','ArrowDown'],left:['KeyA','ArrowLeft'],right:['KeyD','ArrowRight'],sprint:['ShiftLeft','ShiftRight'],pass:['Space',''],lob:['KeyL',''],thr:['KeyK',''],shoot:['KeyJ',''],sw:['KeyM',''],to:['KeyT',''],pause:['KeyP','Escape'],call:['KeyF',''],cam:['KeyC',''],skill:['KeyV','']};
 const DEFSET={keys:DEFKEYS,cam:0,walkout:true,all:true,fx:true,crowd:true,master:.8,fxV:1,crowdV:1,auto:false,labels:true,shake:true,blurPause:true,hints:true};
 function cloneKeys(k){const o={};for(const a in k)o[a]=k[a].slice();return o}
 const S=Object.assign({},DEFSET,{keys:cloneKeys(DEFKEYS)});
@@ -731,7 +731,7 @@ function kn(c){
 const K1=a=>kn(S.keys[a][0]||S.keys[a][1]);
 function hintsHTML(){
  const k=a=>'<kbd>'+K1(a)+'</kbd>';
- return '<span>'+k('up')+k('left')+k('down')+k('right')+' move</span><span>'+k('pass')+' pass / tackle (hold = slide)</span><span>'+k('lob')+' lob</span><span>'+k('thr')+' through</span><span>'+k('shoot')+' shoot (hold)</span><span>'+k('sprint')+' sprint</span><span>'+k('sw')+' switch player</span><span>'+k('cam')+' camera</span>'+(typeof G!=='undefined'&&G&&G.rtgP?'<span>'+k('call')+' call for pass</span>':'')+'<span><span>'+k('to')+' timeout</span><span>'+k('pause')+' pause</span>';
+ return '<span>'+k('up')+k('left')+k('down')+k('right')+' move</span><span>'+k('pass')+' pass / tackle (hold = slide)</span><span>'+k('lob')+' lob</span><span>'+k('thr')+' through</span><span>'+k('shoot')+' shoot (hold)</span><span>'+k('sprint')+' sprint</span><span>'+k('sw')+' switch player</span><span>'+k('skill')+' skill move</span><span>'+k('cam')+' camera</span>'+(typeof G!=='undefined'&&G&&G.rtgP?'<span>'+k('call')+' call for pass</span>':'')+'<span><span>'+k('to')+' timeout</span><span>'+k('pause')+' pause</span>';
 }
 function renderHints(){
  const lg=document.getElementById('legend');if(lg){lg.innerHTML=hintsHTML();lg.style.visibility=S.hints?'':'hidden'}
@@ -741,7 +741,7 @@ function renderHints(){
   +'<li><span class="k">'+kb('lob')+'</span> lob pass over defenders</li><li><span class="k">'+kb('thr')+'</span> through ball into space</li>'
   +'<li><span class="k">'+kb('shoot')+'</span> shoot, hold to charge. Near goal, time the moving aim line</li>'
   +'<li><span class="k">'+kb('sprint')+'</span> sprint (uses stamina)</li>'
-  +'<li><span class="k">'+kb('sw')+'</span> switch player on defence (offence follows the ball)</li><li><span class="k">'+kb('cam')+'</span> change the camera angle</li><li><span class="k">'+kb('call')+'</span> Road to Glory: call for a pass</li>'
+  +'<li><span class="k">'+kb('sw')+'</span> switch player on defence (offence follows the ball)</li><li><span class="k">'+kb('skill')+'</span> skill move while dribbling (stepovers, roulette, rainbow flick…)</li><li><span class="k">'+kb('cam')+'</span> change the camera angle</li><li><span class="k">'+kb('call')+'</span> Road to Glory: call for a pass</li>'
   +'<li><span class="k">'+kb('pause')+'</span> pause · change any key in Settings</li>';
 }
 
@@ -904,6 +904,7 @@ function getInput(){
 }
 function press(a){
  if(a==='cam'){camNext();return}
+ if(a==='skill'){const o=G.ctrl;if(o&&!G.demo&&G.ball.owner===o&&G.state==='play'&&!o.dr&&Math.hypot(o.vx,o.vy)>40)startSkill(o);return}
  if(a==='call'){if(G.rtgP&&G.state==='play'&&!G.demo&&!G.paused){G.callT=2.5;sfx('pass')}return}
  if(G.state==='pk'&&!NET){pkPress(a);return}
  if(G.intro>.3&&!(NET&&NET.role==='guest'))G.intro=.3;
@@ -1591,6 +1592,7 @@ function movePlayers(dt,live){
  if(!live)G.sprintOn=false;
  for(const p of G.players){
   const T=G.teams[p.team],ai=aiOf(p);
+  if(p.dr&&G.ball.owner!==p)p.dr=null;
   if(p.dive){const dv=p.dive,was=dv.t;dv.t+=dt;if(was<dv.dur&&dv.t>=dv.dur){spawnDust(p.x,p.y,8)}if(dv.t>=dv.dur+dv.rec)p.dive=null}
   p.kickCD=Math.max(0,p.kickCD-dt);p.tackleCD=Math.max(0,p.tackleCD-dt);p.stun=Math.max(0,p.stun-dt);p.throwAnim=Math.max(0,(p.throwAnim||0)-dt);p.kickAnim=Math.max(0,(p.kickAnim||0)-dt);
   if(live&&!G.demo&&p.rt){const sp0=Math.hypot(p.vx,p.vy)/132;p.fat=Math.min(1,(p.fat||0)+dt/G.len*(G.fatMul||1)*(.55+.7*Math.min(1.6,sp0))*(p.isGK?.35:1));
@@ -1705,18 +1707,72 @@ function tackleAll(){
  for(const p of G.players){
   if(p.team===o.team||p.tackleCD>0)continue;
   if(p.ctrl&&!G.demo&&!act.pass&&false)continue;
-  const cpu=p.team===1&&!G.online,prob=(cpu?aiOf(p).tack:1)*(p.mTack||1)*(cpu?.2:.34);
+  const cpu=p.team===1&&!G.online,prob=(cpu?aiOf(p).tack:1)*(p.mTack||1)*(cpu?.2:.34)*(1+(G.ball.dOff||0)/16);
   if(attemptTackle(p,prob))break;
  }
+}
+/* ---------- dribbling: touches, skill moves and loose balls ---------- */
+const SKILLS={stepover:{dur:.55,w:3},roulette:{dur:.6,w:2},drag:{dur:.5,w:2},knock:{dur:.45,w:3},flick:{dur:.5,w:2},rainbow:{dur:.8,w:1,min:4}};
+function startSkill(o,kind){
+ if(!kind){const ks=Object.keys(SKILLS).filter(k=>!(SKILLS[k].min>(o.rt||3)));let tot=0;for(const k of ks)tot+=SKILLS[k].w;let r=Math.random()*tot;for(const k of ks){r-=SKILLS[k].w;if(r<=0){kind=k;break}}kind=kind||'stepover'}
+ o.dr={k:kind,t:0,dur:SKILLS[kind].dur,s:Math.random()<.5?1:-1};o.drCD=rnd(.8,1.8);
+}
+function dribbleStep(o,dt,live){
+ const b=G.ball,base=PR+BR+2,dyn=live&&G.state==='play'&&!o.isGK&&!G.demo&&!throwHold();
+ let off=base,side=0,ang=0,hop=0,stiff=20;
+ const sp=Math.hypot(o.vx,o.vy);
+ if(dyn&&sp>35){
+  o.dph=(o.dph||0)+dt*(3+sp/28);
+  off+=Math.sin(o.dph*2)*(1.5+sp/90)+(sp>200?4:0);
+  side=Math.sin(o.dph)*(1+sp/110);
+  hop=Math.max(0,Math.sin(o.dph*2+1))*Math.min(3,sp/90);
+  const pf=o.pface==null?o.face:o.pface,da=Math.atan2(Math.sin(o.face-pf),Math.cos(o.face-pf));o.pface=o.face;
+  o.turn=Math.abs(da)/Math.max(dt,.001);
+ }
+ if(dyn){
+  const d=o.dr;
+  if(d){
+   d.t+=dt;const u=Math.min(1,d.t/d.dur);
+   if(d.k==='stepover'){side+=Math.sin(u*TAU*2)*14*(1-u*.3);off+=4}
+   else if(d.k==='roulette'){ang=d.s*u*TAU;off+=8*Math.sin(u*Math.PI);stiff=26}
+   else if(d.k==='drag'){off-=(base+PR+6)*Math.sin(Math.PI*u)}
+   else if(d.k==='knock'){off+=Math.sin(Math.PI*Math.min(1,u*1.25))*30;stiff=9}
+   else if(d.k==='flick'){hop+=Math.sin(Math.PI*u)*26;off+=10*Math.sin(Math.PI*u)}
+   else if(d.k==='rainbow'){off=-8+52*u;hop=Math.sin(Math.PI*u)*72;stiff=26;side=0}
+   if(u>=1)o.dr=null;
+  }else{
+   o.drCD=(o.drCD||0)-dt;
+   const human=o.ctrl,rate=sp>200?(human?.35:1.1):(human?.12:.5);
+   if(o.drCD<=0&&sp>70&&Math.random()<rate*dt)startSkill(o);
+  }
+ }
+ if(dyn&&sp>35){
+  // loose touches: the ball runs away from tired / fast / sharply turning carriers
+  const rt=o.rt||3,sprinting=sp>240,sharp=(o.turn||0)>7;
+  let hz=.012+(sprinting?.05:0)+(sharp?.14:0);
+  hz*=(1.35-.17*rt)*(1+(o.fat||0))*(o.ctrl?.65:1)*(o.dr?.5:1);
+  if(!o.dr&&Math.random()<hz*dt){
+   const a=o.face+rnd(-.9,.9),kk=rnd(140,240)+sp*.6;
+   b.owner=null;b.vx=Math.cos(a)*kk;b.vy=Math.sin(a)*kk;o.kickCD=.3;b.passTarget=null;b.offs=null;b.hop=0;b.dOff=0;o.dr=null;
+   return false;
+  }
+ }else if(!o.dr){o.dph=0}
+ if(!dyn&&o.dr)o.dr=null;
+ const px=-Math.sin(o.face),py=Math.cos(o.face),aa=o.face+ang;
+ const tx=o.x+Math.cos(aa)*off+px*side,ty=o.y+Math.sin(aa)*off+py*side,k=Math.min(1,dt*stiff);
+ b.x+=(tx-b.x)*k;b.y+=(ty-b.y)*k;b.hop=hop;b.dOff=Math.max(0,off-base);
+ return true;
 }
 function ballUpdate(dt,live){
  const b=G.ball;
  if(b.owner){
-  const o=b.owner,tx=o.x+Math.cos(o.face)*(PR+BR+2),ty=o.y+Math.sin(o.face)*(PR+BR+2),k=Math.min(1,dt*20);
-  b.x+=(tx-b.x)*k;b.y+=(ty-b.y)*k;b.vx=o.vx;b.vy=o.vy;b.z=0;b.vz=0;b.last=o;
+  const o=b.owner;
+  if(!dribbleStep(o,dt,live)){b.z=0;b.vz=0;b.last=o;return}
+  b.vx=o.vx;b.vy=o.vy;b.z=0;b.vz=0;b.last=o;
   if(live&&G.state==='play'&&carrierOut(o))return;
   if(live)tackleAll();
  }else{
+  b.hop=0;b.dOff=0;
   if(b.ghost>=0&&Math.hypot(b.vx,b.vy)<210)b.ghost=-1;
   if(b.z>0||b.vz!==0){
    b.vz-=GRAV*dt;b.z+=b.vz*dt;
@@ -2858,7 +2914,9 @@ function drawPlayer(p){
  ctx.fillStyle='rgba(0,25,10,.28)';ctx.beginPath();ctx.ellipse(sx+1.5*s,sy+.8*s,12*s,5.6*s,0,0,TAU);ctx.fill();
  ctx.fillStyle='rgba(0,25,10,.22)';ctx.beginPath();ctx.ellipse(sx+s,sy+.5*s,7.5*s,3.4*s,0,0,TAU);ctx.fill();
  if(p.dive){const dv=p.dive,tt=dv.t,fly=tt<dv.dur;hop+=fly?Math.sin(Math.PI*Math.min(1,tt/dv.dur))*24:0;arm=fly?3:1}
+ if(p.dr&&G.ball.owner===p){const d=p.dr,u=Math.min(1,d.t/d.dur);if(d.k==='stepover'){sway+=Math.sin(u*TAU*2)*3.2;arm=1}else if(d.k==='flick')hop+=Math.sin(Math.PI*u)*4;else if(d.k==='rainbow'){hop+=Math.sin(Math.PI*u)*8;arm=3}else if(d.k==='drag')sway-=Math.sin(Math.PI*u)*2.5;else if(d.k==='knock')hop+=Math.sin(Math.PI*u)*1.5}
  ctx.save();ctx.translate(sway*s,-hop*k);
+ if(p.dr&&p.dr.k==='roulette'&&G.ball.owner===p){const u=Math.min(1,p.dr.t/p.dr.dur);ctx.translate(sx,0);ctx.scale(Math.cos(u*TAU),1);ctx.translate(-sx,0)}
  {const dv=p.dive;if(dv){const f=dv.t<dv.dur?Math.min(1,dv.t/.12):Math.max(0,1-(dv.t-dv.dur)/dv.rec*1.1),py=sy-7*k;ctx.translate(sx,py);ctx.rotate(dv.sy*1.45*f);ctx.translate(-sx,-py+4*k*f)}}
  {const sl=p.slide||0,sr=p.slideRec||0;if(sl>0||sr>0){const f=sl>0?Math.min(1,(.5-sl)/.09+.15):Math.min(1,sr/.3),dir0=Math.cos(p.sdx!==undefined?Math.atan2(p.sdy,p.sdx):p.face)>=0?1:-1,py=sy-7*k;ctx.translate(sx,py);ctx.rotate(-dir0*1.25*f);ctx.translate(-sx,-py+5*k*f)}}
  const hipY=sy-(21-crouch)*k,legs=[];
@@ -2957,7 +3015,7 @@ function drawBall(){
   const t=b.trail[i],q=P(t.x,t.y,(t.z||0)+BR);
   ctx.fillStyle='rgba(255,255,255,'+(.04+i*.03)+')';ctx.beginPath();ctx.arc(q[0],q[1],BR*(.4+i*.05)*q[2],0,TAU);ctx.fill();
  }
- const tk=G.rs&&G.rs.taker,a=th?P(tk.x+Math.cos(tk.face)*3,tk.y+Math.sin(tk.face)*3,50):P(b.x,b.y,b.z+BR),r=BR*a[2]*.889;
+ const tk=G.rs&&G.rs.taker,a=th?P(tk.x+Math.cos(tk.face)*3,tk.y+Math.sin(tk.face)*3,50):P(b.x,b.y,b.z+BR+(b.owner?b.hop||0:0)),r=BR*a[2]*.889;
  ctx.save();ctx.translate(a[0],a[1]);
  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill();
  ctx.strokeStyle='#1b2036';ctx.lineWidth=Math.max(1,r*.2);ctx.stroke();
